@@ -6,11 +6,21 @@
  * Time: 14:42
  */
 
+use Framework\DI\ServiceLocator\Service;
+
 class Application
 {
 
+	private $config = [];
+
+	public function __construct($config) {
+		$this->config = $config;
+	}
+
 	public function run () {
-		new \Framework\DI\ServiceLocator\Service();
+
+		Service::get('asd');
+
 	}
 
 }
