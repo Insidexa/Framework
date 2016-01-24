@@ -6,14 +6,11 @@
  * Time: 14:42
  */
 
-namespace Framework;
-
-
 class Application
 {
 
 	public function run () {
-
+		new \Framework\DI\ServiceLocator\Service();
 	}
 
 }
