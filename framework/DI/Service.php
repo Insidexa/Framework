@@ -8,7 +8,7 @@
 
 namespace Framework\DI\ServiceLocator;
 
-use Exception\ServiceNotFound;
+use Exception\ServiceNotFoundException;
 
 class Service
 {
@@ -19,7 +19,7 @@ class Service
 		if (array_key_exists($service, self::$services)) {
 			return self::$services[$service];
 		} else {
-			throw new ServiceNotFound('Service ' . $service . ' not created');
+			throw new ServiceNotFoundException('Service ' . $service . ' not created');
 		}
 
 	}
