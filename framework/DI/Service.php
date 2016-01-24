@@ -6,9 +6,9 @@
  * Time: 16:01
  */
 
-namespace Framework\DI\ServiceLocator;
+namespace Framework\DI;
 
-use Exception\ServiceNotFoundException;
+use Framework\Exception\ServiceNotFoundException;
 
 class Service
 {

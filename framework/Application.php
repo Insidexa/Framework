@@ -6,7 +6,7 @@
  * Time: 14:42
  */
 
-use Framework\DI\ServiceLocator\Service;
+use Framework\DI\Service;
 
 class Application
 {
