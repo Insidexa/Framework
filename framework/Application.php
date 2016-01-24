@@ -18,9 +18,6 @@ class Application
 	}
 
 	public function run () {
-
-		Service::get('asd');
-
 	}
 
 }
