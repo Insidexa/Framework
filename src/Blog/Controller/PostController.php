@@ -33,7 +33,7 @@ class PostController extends Controller
     public function addAction()
     {
         if ($this->getRequest()->isPost()) {
-            try{
+            try {
                 $post          = new Post();
                 $date          = new \DateTime();
                 $post->title   = $this->getRequest()->post('title');
@@ -47,7 +47,7 @@ class PostController extends Controller
                 } else {
                     $error = $validator->getErrors();
                 }
-            } catch(DatabaseException $e){
+            } catch(DatabaseException $e) {
                 $error = $e->getMessage();
             }
         }
