@@ -41,9 +41,9 @@ class Loader
 	 */
 	public static function loadClass ($className) {
 
-		$parts = explode('\\', $className);
+		$parts = explode(self::$namespaceSeparator, $className);
 
-		$file_name = end($parts).self::$fileExtension;
+		$file_name = end($parts) . self::$fileExtension;
 
 		$files = [];
 
@@ -56,7 +56,11 @@ class Loader
 
 			foreach ($iterator as $fileObject) {
 				if ($fileObject->isDir()) {
-					$files[] = str_replace(self::$namespaceSeparator, '/', $fileObject->getPathname()).'/';
+					$files[] = str_replace(
+							self::$namespaceSeparator,
+							DIRECTORY_SEPARATOR,
+							$fileObject->getPathname()
+						) . DIRECTORY_SEPARATOR;
 				}
 			}
 
@@ -65,8 +69,9 @@ class Loader
 		$array_directories = array_merge(self::$prefixNamespaces,$files);
 
 		foreach($array_directories as $path_directory){
-			if(file_exists($path_directory.$file_name)){
-				include_once $path_directory.$file_name;
+			$path = $path_directory . $file_name;
+			if(file_exists($path)){
+				include_once $path;
 			}
 		}
 
