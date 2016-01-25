@@ -6,6 +6,7 @@
  * Time: 22:39
  */
 
+
 namespace Framework\Request;
 
 /**
@@ -15,8 +16,7 @@ namespace Framework\Request;
  *
  * @package Framework\Request
  */
-class Request
-{
+class Request {
 
 	/**
 	 * @var array
@@ -29,6 +29,16 @@ class Request
 	private $get = [];
 
 	/**
+	 * @var array
+	 */
+	private $files = [];
+
+	/**
+	 * @var array
+	 */
+	private $cookies = [];
+
+	/**
 	 * @var int|null
 	 */
 	private $code = null;
@@ -38,11 +48,45 @@ class Request
 	 */
 	private $method = null;
 
+	/**
+	 * @var null
+	 */
+	private $timeRequest = null;
+
+	/**
+	 * @var null
+	 */
+	private $clientIp = null;
+
+	/**
+	 * @var null
+	 */
+	private $scheme = null;
+
+	/**
+	 * @var null
+	 */
+	private $host = null;
+
+	/**
+	 * @var null
+	 */
+	private $uri = null;
+
+	/**
+	 * Request constructor.
+	 */
 	public function __construct() {
 		$this->get = $_GET;
 		$this->post = $_POST;
+		$this->files = $_FILES;
 		$this->code = http_response_code();
+		$this->clientIp = $_SERVER['SERVER_ADDR'];
 		$this->method = $_SERVER['REQUEST_METHOD'];
+		$this->timeRequest = $_SERVER['REQUEST_TIME'];
+		$this->scheme = $_SERVER['REQUEST_SCHEME'];
+		$this->host = $_SERVER['HTTP_HOST'];
+		$this->uri = $_SERVER['REQUEST_URI'];
 	}
 
 	/**
@@ -50,9 +94,9 @@ class Request
 	 *
 	 * @return string
 	 */
-	public function get ($nameKey) {
+	public function get($nameKey) {
 		return array_key_exists($nameKey, $this->get)
-			? $this->get[$nameKey]
+			? $this->filterRequest($this->get[ $nameKey ])
 			: 'NULL';
 	}
 
@@ -61,38 +105,69 @@ class Request
 	 *
 	 * @return string
 	 */
-	public function post ($nameKey) {
+	public function post($nameKey) {
 		return array_key_exists($nameKey, $this->post)
-			? $this->post[$nameKey]
+			? $this->filterRequest($this->post[ $nameKey ])
 			: 'NULL';
 	}
 
 	/**
 	 * @return int|null
 	 */
-	public function getCode () {
+	public function getCode() {
 		return $this->code;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isPost () {
+	public function isPost() {
 		return $this->method === 'POST';
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isGet () {
+	public function isGet() {
 		return $this->method === 'GET';
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isPut () {
+	public function isPut() {
 		return $this->method === 'PUT';
+	}
+
+	private function isAjax () {
+		$flag = false;
+		if (strtolower(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
+			$flag = true;
+		}
+		return $flag;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUrl () {
+		return $this->scheme . '://' . $this->host . $this->uri;
+	}
+
+	/**
+	 * @return null
+	 */
+	public function getMethod () {
+		return $this->method;
+	}
+
+	/**
+	 * @param $data
+	 *
+	 * @return mixed
+	 */
+	private function filterRequest ($data) {
+		return filter_var($data, FILTER_SANITIZE_STRING);
 	}
 
 }
