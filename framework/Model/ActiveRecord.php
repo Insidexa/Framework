@@ -9,6 +9,7 @@
 namespace Framework\Model;
 
 use Framework\Database\PDOConnector;
+use Framework\Exception\DatabaseException;
 
 /**
  * Class ActiveRecord
@@ -50,7 +51,8 @@ class ActiveRecord extends PDOConnector {
 	 * @param $name
 	 * @param $arguments
 	 *
-	 * @return null
+	 * @return array
+	 * @throws DatabaseException
 	 */
 	public function __call($name, $arguments) {
 		if (strstr($name, 'findBy', false)) {
@@ -61,7 +63,8 @@ class ActiveRecord extends PDOConnector {
 					->where([$columnName => $arguments[0]])
 					->limit(1)
 					->get();
-			} else echo 'Not found properties in ' . $this->pathNamespace;
+			}
+			throw new DatabaseException('Not found properties in ' . $this->pathNamespace);
 		}
 	}
 
@@ -114,9 +117,11 @@ class ActiveRecord extends PDOConnector {
 	}
 
 	/**
-	 * @param string|integer $data
+	 * @param $data
 	 *
-	 * @return $this
+	 * @throws \InvalidArgumentException
+	 *
+	 * @return $this|array
 	 */
 	public function find($data) {
 
@@ -132,7 +137,7 @@ class ActiveRecord extends PDOConnector {
 				break;
 
 			default:
-				echo 'Error';
+				throw new \InvalidArgumentException('Invalid arguments');
 				break;
 		}
 
