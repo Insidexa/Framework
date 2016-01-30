@@ -1,6 +1,9 @@
 <?php
 
-namespace Framework;
+namespace Framework\Router;
+use Framework\DI\Service;
+use Framework\Exception\HttpNotFoundException;
+
 /**
  * Class Router
  */
@@ -49,26 +52,22 @@ class Router {
 				preg_replace(
 					'/^\//',
 					'',
-					str_replace(
-						$this->getBaseUrl(true),
-						'',
-						$this->getFullUrl()
-					)
+					Service::get('request')->getUri()
 				)
 			);
-		var_dump($_SERVER['REQUEST_URI']);
 
-		return $data;
+		return count($data);
 	}
 
 	public function getFullUrl() {
-		return $this->getScheme() . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+		return Service::get('request')->getUrl();
 	}
+
 
 	protected function checkPublicProperty($name, $class = NULL) {
 		$class = $class ?: $this;
-		$reflection = new ReflectionObject($class);
-		$properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+		$reflection = new \ReflectionObject($class);
+		$properties = $reflection->getProperties(\ReflectionProperty::IS_PUBLIC);
 
 		foreach ($properties as $_nextPropertyInfo) {
 			if ($_nextPropertyInfo->name === $name) {
@@ -111,7 +110,8 @@ class Router {
 	}
 
 	public function run() {
-		$this->method = $_SERVER['REQUEST_METHOD'];
+		$this->urlScheme = Service::get('request')->getScheme();
+		$this->method = Service::get('request')->getMethod();
 		$this->parseUrl();
 	}
 
@@ -144,7 +144,6 @@ class Router {
 	}
 
 	public function parseUrl() {
-		var_dump($this->getSegments());
 
 		switch (sizeof($this->segments)) {
 			case 1:
@@ -209,11 +208,11 @@ class Router {
 
 			if ($patterExplode[0] === '') {
 				if ($this->controllerName === $this->defaultControllerName) {
-					//Site default controller
-					echo 'HOME ////';
+					$this->controllerName = $_next['controller'];
+					$this->actionName = $_next['action'];
 				}
 			} else if ($patterExplode[0] === $this->controllerName) {
-				echo $this->controllerName . "<br/>";
+				//echo $this->controllerName . "<br/>";
 
 				if (sizeof($this->segments) === sizeof($patterExplode)) {
 					$requirement = isset($_next['_requirements']) ? $_next['_requirements'] : array('_method' => 'GET');
@@ -225,11 +224,12 @@ class Router {
 						}
 
 						if (isset($requirement['_method']) && (strtolower($requirement['_method']) !== strtolower($this->method))) {
-							echo 'Error. Method mismatched!';
+							throw new HttpNotFoundException('Method mismatched');
+							/*echo 'Error. Method mismatched!';
 							var_dump($_next, $requirement, $this->method);
-							continue;
+							continue;*/
 						} else if (preg_match($pattern, '/' . implode('/', $this->segments))) {
-							echo "Route found";
+							//echo "Route found";
 
 							$this->controllerName = $_next['controller'];
 							$this->actionName = $_next['action'];
@@ -255,6 +255,10 @@ class Router {
 						}
 					}
 				}
+			} else {
+				$this->controllerName = $this->defaultControllerName;
+				$this->actionName = $this->defaultActionName;
+				break;
 			}
 		}
 	}
@@ -266,8 +270,7 @@ class Router {
 	public function getMap () {
 		return [
 			'controller' => (!empty($this->controllerName)) ? $this->controllerName : $this->defaultControllerName,
-			'method' => (!empty($this->actionName)) ? $this->actionName : $this->defaultActionName,
-			'url' => ''
+			'method' => (!empty($this->actionName)) ? $this->actionName : $this->defaultActionName
 		];
 	}
 
@@ -292,112 +295,3 @@ class Router {
 
 }
 
-$config = array(
-	'home'           => array(
-		'pattern'    => '/',
-		'controller' => 'Blog\\Controller\\PostController',
-		'action'     => 'index'
-	),
-	'testredirect'   => array(
-		'pattern'    => '/test_redirect',
-		'controller' => 'Blog\\Controller\\TestController',
-		'action'     => 'redirect',
-	),
-	'test_json'      => array(
-		'pattern'    => '/test_json',
-		'controller' => 'Blog\\Controller\\TestController',
-		'action'     => 'getJson',
-	),
-	'signin'         => array(
-		'pattern'    => '/signin',
-		'controller' => 'Blog\\Controller\\SecurityController',
-		'action'     => 'signin'
-	),
-	'login'          => array(
-		'pattern'    => '/login',
-		'controller' => 'Blog\\Controller\\SecurityController',
-		'action'     => 'login'
-	),
-	'logout'         => array(
-		'pattern'    => '/logout',
-		'controller' => 'Blog\\Controller\\SecurityController',
-		'action'     => 'logout'
-	),
-	'update_profile' => array(
-		'pattern'       => '/profile',
-		'controller'    => 'CMS\\Controller\\ProfileController',
-		'action'        => 'update',
-		'_requirements' => array(
-			'_method' => 'POST'
-		)
-	),
-	'profile'        => array(
-		'pattern'    => '/profile',
-		'controller' => 'CMS\\Controller\\ProfileController',
-		'action'     => 'get'
-	),
-	'add_post'       => array(
-		'pattern'    => '/posts/add',
-		'controller' => 'Blog\\Controller\\PostController',
-		'action'     => 'add',
-		'security'   => array('ROLE_USER'),
-	),
-	'show_post'      => array(
-		'pattern'       => '/posts/{id}',
-		'controller'    => 'Blog\\Controller\\PostController',
-		'action'        => 'show',
-		'_requirements' => array(
-			'id' => '\d+'
-		)
-	),
-	'edit_post'      => array(
-		'pattern'       => '/posts/{id}/edit',
-		'controller'    => 'CMS\\Controller\\BlogController',
-		'action'        => 'edit',
-		'_requirements' => array(
-			'id'      => '\d+',
-			'_method' => 'POST'
-		)
-
-	)
-);
-
-$baseUrl = '/posts/add';
-
-$_SERVER = array(
-	'DOCUMENT_ROOT' => '/projects/Php/juton-automation-backend',
-	'REMOTE_ADDR' => '::1',
-	'REMOTE_PORT' => '52425',
-	'SERVER_SOFTWARE' => 'PHP 5.5.27 Development Server',
-	'SERVER_PROTOCOL' => 'HTTP/1.1',
-	'SERVER_NAME' => 'localhost',
-	'SERVER_PORT' => '7000',
-	'REQUEST_METHOD' => 'GET',
-	'SCRIPT_NAME' => $baseUrl . 'index.php',
-	'SCRIPT_FILENAME' => '/projects/Php/juton-automation-backend' . $baseUrl . 'index.php',
-	'PHP_SELF' => $baseUrl . 'index.php',
-	'REQUEST_URI' => $baseUrl . '',
-	'HTTP_HOST' => 'localhost:7000',
-	'HTTP_CONNECTION' => 'keep-alive',
-	'HTTP_CACHE_CONTROL' => 'max-age=0',
-	'HTTP_ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-	'HTTP_UPGRADE_INSECURE_REQUESTS' => '1',
-	'HTTP_USER_AGENT' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36',
-	'HTTP_ACCEPT_ENCODING' => 'gzip, deflate, sdch',
-	'HTTP_ACCEPT_LANGUAGE' => 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4',
-	'HTTP_COOKIE' => 'PHPSESSID=ba705fe4e329e6c717cc48550446e22b',
-	'REQUEST_TIME_FLOAT' => '1453807052.7995',
-	'REQUEST_TIME' => '1453807052',
-	'argv' => array(),
-	'argc' => '0'
-);
-
-
-
-$_SERVER['REQUEST_URI'] = $baseUrl;
-$_SERVER['REQUEST_METHOD'] = 'POST';
-$router = new Router($config);
-
-//echo $router->buildRoute('d');
-
-echo $router;
