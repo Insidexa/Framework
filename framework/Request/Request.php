@@ -84,7 +84,7 @@ class Request {
 		$this->clientIp = $_SERVER['SERVER_ADDR'];
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$this->timeRequest = $_SERVER['REQUEST_TIME'];
-		$this->scheme = $_SERVER['REQUEST_SCHEME'];
+		$this->scheme = ($_SERVER['HTTPS'] === null) ? 'http' : $_SERVER['HTTPS'];
 		$this->host = $_SERVER['HTTP_HOST'];
 		$this->uri = $_SERVER['REQUEST_URI'];
 	}
@@ -139,7 +139,7 @@ class Request {
 		return $this->method === 'PUT';
 	}
 
-	private function isAjax () {
+	public function isAjax () {
 		$flag = false;
 		if (strtolower(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
 			$flag = true;
@@ -159,6 +159,17 @@ class Request {
 	 */
 	public function getMethod () {
 		return $this->method;
+	}
+
+	/**
+	 * @return null
+	 */
+	public function getUri () {
+		return $this->uri;
+	}
+
+	public function getScheme () {
+		return $this->scheme;
 	}
 
 	/**
