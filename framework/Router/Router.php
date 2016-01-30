@@ -45,7 +45,7 @@ class Router {
 	}
 
 	public function getSegments() {
-		$data = count($this->segments)
+		$count = count($this->segments)
 			? $this->segments
 			: $this->segments = explode(
 				'/',
@@ -56,7 +56,7 @@ class Router {
 				)
 			);
 
-		return count($data);
+		return count($count);
 	}
 
 	public function getFullUrl() {
