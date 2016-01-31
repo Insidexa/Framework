@@ -7,6 +7,6 @@ Loader::addNamespacePath('Blog\\', __DIR__ . '/../src/Blog');
 
 Loader::register();
 
-$app = new Application(__DIR__ . '/../app/config/config.php');
+$app = new \Framework\Application(__DIR__ . '/../app/config/config.php');
 
 $app->run();
