@@ -28,12 +28,27 @@ class Loader
 	 */
 	private static $fileExtension = '.php';
 
+	/**
+	 * @var
+	 */
+	private static $instance;
 
-	public static function register () {
+	private function __construct() {
+
+		self::addNamespacePath('Framework\\', __DIR__ . '/../framework');
+
 		spl_autoload_register([
 			self::class,
 			'loadClass'
 		]);
+	}
+
+	public static function getInstance () {
+		if(empty(self::$instance)) {
+			self::$instance = new self;
+		}
+
+		return self::$instance;
 	}
 
 	/**
@@ -41,37 +56,15 @@ class Loader
 	 */
 	public static function loadClass ($className) {
 
-		$parts = explode(self::$namespaceSeparator, $className);
-
-		$file_name = end($parts) . self::$fileExtension;
-
-		$files = [];
+		$segmentsNamespace = explode(self::$namespaceSeparator, $className);
+		unset($segmentsNamespace[0]);
+		$segmentsNamespace = implode(DIRECTORY_SEPARATOR, $segmentsNamespace);
 
 		foreach(self::$prefixNamespaces as $namespace => $path_directory){
 
-			$iterator = new RecursiveIteratorIterator(
-				new RecursiveDirectoryIterator($path_directory),
-				RecursiveIteratorIterator::SELF_FIRST
-			);
-
-			foreach ($iterator as $fileObject) {
-				if ($fileObject->isDir()) {
-					$files[] = str_replace(
-							self::$namespaceSeparator,
-							DIRECTORY_SEPARATOR,
-							$fileObject->getPathname()
-						) . DIRECTORY_SEPARATOR;
-				}
-			}
-
-		}
-
-		$array_directories = array_merge(self::$prefixNamespaces,$files);
-
-		foreach($array_directories as $path_directory){
-			$path = $path_directory . $file_name;
-			if(file_exists($path)){
-				include_once $path;
+			$path = $path_directory . DIRECTORY_SEPARATOR . $segmentsNamespace . self::$fileExtension;
+			if (file_exists($path)) {
+				include_once($path);
 			}
 		}
 
@@ -85,5 +78,10 @@ class Loader
 		self::$prefixNamespaces[$prefixNamespace] = $path;
 	}
 
+	private function __clone() {
+		// TODO: Implement __clone() method.
+	}
+
 }
 
+Loader::getInstance();
