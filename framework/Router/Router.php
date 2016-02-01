@@ -193,10 +193,8 @@ class Router {
 			return $notReturn ? [] : $this->urlParams;
 		}
 
-		$iMax = sizeof($params);
-		for ($i = 0; $i <= $iMax; $i += 2) {
-			if ($params[$i])
-				$this->urlParams[$params[$i]] = isset($params[$i + 1]) ?: NULL;
+		foreach ($params as $key => $value) {
+			$this->urlParams[$key] = $value;
 		}
 
 		return $this->urlParams;
@@ -266,7 +264,8 @@ class Router {
 	public function getMap () {
 		return [
 			'controller' => (!empty($this->controllerName)) ? $this->controllerName : $this->defaultControllerName,
-			'method' => (!empty($this->actionName)) ? $this->actionName : $this->defaultActionName
+			'method' => (!empty($this->actionName)) ? $this->actionName : $this->defaultActionName,
+			'params' => $this->urlParams
 		];
 	}
 
