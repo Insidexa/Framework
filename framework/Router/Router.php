@@ -255,10 +255,6 @@ class Router {
 						}
 					}
 				}
-			} else {
-				$this->controllerName = $this->defaultControllerName;
-				$this->actionName = $this->defaultActionName;
-				break;
 			}
 		}
 	}
