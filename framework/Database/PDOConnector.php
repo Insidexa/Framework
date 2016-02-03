@@ -14,12 +14,8 @@ use Framework\Exception\DatabaseException;
  * Class PDOConnector
  *
  * @package Framework\Database
- */
-
-/**
- * Class PDOConnector
  *
- * @package Framework\Database
+ * @author Jashka
  */
 class PDOConnector {
 
@@ -116,7 +112,7 @@ class PDOConnector {
 
 				static::$instance->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-			} catch (\PDOException $e) {
+			} catch (\DatabaseException $e) {
 				throw new DatabaseException($e->getMessage());
 			}
 
@@ -389,6 +385,8 @@ class PDOConnector {
 			}
 		}
 
+		$columnsSql = ' *';
+
 		return $columnsSql;
 	}
 
@@ -454,7 +452,7 @@ class PDOConnector {
 			$this->clear();
 
 			return $this->statement;
-		} catch (\PDOException $e) {
+		} catch (\DatabaseException $e) {
 			throw new DatabaseException('Error execute statement: ' . $e->getMessage());
 		}
 	}
