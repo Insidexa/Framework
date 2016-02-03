@@ -112,7 +112,7 @@ class PDOConnector {
 
 				static::$instance->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-			} catch (\DatabaseException $e) {
+			} catch (\PDOException $e) {
 				throw new DatabaseException($e->getMessage());
 			}
 
@@ -452,7 +452,7 @@ class PDOConnector {
 			$this->clear();
 
 			return $this->statement;
-		} catch (\DatabaseException $e) {
+		} catch (\PDOException $e) {
 			throw new DatabaseException('Error execute statement: ' . $e->getMessage());
 		}
 	}

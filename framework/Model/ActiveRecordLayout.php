@@ -10,6 +10,7 @@
 namespace Framework\Model;
 
 use Framework\Database\PDOConnector;
+use Framework\Exception\DatabaseException;
 
 /**
  * Class ActiveRecord
@@ -30,6 +31,9 @@ class ActiveRecordLayout extends PDOConnector {
 	 */
 	private $data = [];
 
+	/**
+	 * @var string
+	 */
 	private $pathNamespace = '';
 
 	/**
@@ -88,6 +92,7 @@ class ActiveRecordLayout extends PDOConnector {
 
 	/**
 	 * @return null
+	 * @throws DatabaseException
 	 */
 	public function save() {
 
@@ -144,7 +149,7 @@ class ActiveRecordLayout extends PDOConnector {
 	/**
 	 * @param array $params
 	 *
-	 * @return array|bool
+	 * @return array|bool|null
 	 */
 	public function update(array $params = []) {
 
@@ -173,8 +178,7 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
-	 *
-	 * @return $this
+	 * @return array|bool|null
 	 */
 	public function delete() {
 
@@ -187,7 +191,8 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
-	 * @return array|bool
+	 * @return array|bool|null
+	 * @throws DatabaseException
 	 */
 	public function query() {
 
