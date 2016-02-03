@@ -82,7 +82,7 @@ class Controller
 	 *
 	 * @return ResponseRedirect
 	 */
-	protected function redirect ($url, $message) {
+	protected function redirect ($url, $message = '') {
 
 		return new ResponseRedirect($url, $message);
 
