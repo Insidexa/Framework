@@ -40,22 +40,6 @@ class Render {
 	 */
 	public function render ($pathView, $data = null ) {
 
-		$include = function ($controller, $method, array $arguments = [] ) {
-
-			$methodName = $method . 'Action';
-
-			$controllerObj = new $controller;
-			$controllerObj->$methodName($arguments);
-		};
-
-		$getRoute = function ($route, array $params = []) {
-			return Service::get('router')->buildRoute($route, $params);
-		};
-
-		$generateToken = function () {
-			return random_int(1000, 2132133);
-		};
-
 		$path = $pathView . $this->layoutExtension;
 
 		if (!file_exists($path)) throw new Exception('File ' . $path . ' not found');
@@ -80,6 +64,22 @@ class Render {
 	 * @return string
 	 */
 	private function getRenderBuffer ($pathView, $data = null) {
+
+		$include = function ($controller, $method, array $arguments = [] ) {
+
+			$methodName = $method . 'Action';
+
+			$controllerObj = new $controller;
+			$controllerObj->$methodName($arguments);
+		};
+
+		$getRoute = function ($route, array $params = []) {
+			return Service::get('router')->buildRoute($route, $params);
+		};
+
+		$generateToken = function () {
+			return random_int(1000, 2132133);
+		};
 
 		if ($data !== null) extract($data);
 
