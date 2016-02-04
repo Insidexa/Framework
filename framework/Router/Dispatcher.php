@@ -17,14 +17,14 @@ namespace Framework\Router;
 class Dispatcher {
 
 	/**
-	 * @param      $controller
-	 * @param      $method
-	 * @param null $arguments
+	 * @param       $controller
+	 * @param       $method
+	 * @param array $arguments
 	 *
 	 * @return mixed
 	 * @throws \ErrorException | \BadMethodCallException
 	 */
-	public static function create ($controller, $method, $arguments = null) {
+	public static function create ($controller, $method, $arguments) {
 
 		$methodName = $method . 'Action';
 
@@ -38,7 +38,15 @@ class Dispatcher {
 			throw new \BadMethodCallException('Method ' . $methodName . ' not found in ' . $controller);
 		}
 
-		return $controllerObj->$methodName($arguments);
+		$reflectionMethod = new \ReflectionMethod($controller, $methodName);
+
+		if (gettype($arguments) === 'array')
+			$response = $reflectionMethod->invokeArgs($controllerObj, $arguments);
+
+		if (gettype($arguments) === 'string')
+			$response = $reflectionMethod->invoke($controllerObj, $arguments);
+
+		return $response;
 
 	}
 
