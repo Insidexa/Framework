@@ -15,7 +15,7 @@ class Service {
 	/**
 	 * @var array
 	 */
-	private static $services = [];
+	public static $services = [];
 
 
 	/**
@@ -42,9 +42,12 @@ class Service {
 	 * @throws ServiceNotFoundException
 	 */
 	private function issetService($service) {
-		return array_key_exists($service, self::$services)
-			? self::$services[ $service ]
-			: self::$services[ $service ] = $this->createService($service);
+
+		if (array_key_exists($service, self::$services)) {
+			return self::$services[ $service ];
+		}
+
+		throw new ServiceNotFoundException('Service ' . $service . ' not found');
 	}
 
 	/**
@@ -63,19 +66,5 @@ class Service {
 	public function __set($name, $value) {
 		self::$services[ $name ] = $value;
 	}
-
-	/**
-	 * @param $className
-	 *
-	 * @return mixed
-	 * @throws ServiceNotFoundException
-	 */
-	private function createService($className) {
-		if (class_exists($className))
-			return new $className;
-
-		throw new ServiceNotFoundException('Service ' . $className . ' not created');
-	}
-
 
 }
