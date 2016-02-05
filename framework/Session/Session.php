@@ -18,6 +18,8 @@ namespace Framework\Session;
  */
 class Session {
 
+	public $returnUrl = '';
+
 	/**
 	 * Session constructor.
 	 */
@@ -27,10 +29,13 @@ class Session {
 			session_start();
 		}
 
+		$this->returnUrl = $_SERVER['HTTP_REFERER'];
+
 	}
 
 	public function destroy () {
 
+		session_unset();
 		session_destroy();
 
 	}
@@ -65,10 +70,11 @@ class Session {
 
 		switch($type) {
 			case 'string':
+			case 'object':
 				$_SESSION[$name] = $value;
 				break;
 
-			case 'object':
+			case 'object' && is_callable($value):
 				$_SESSION[$name] = $value();
 				break;
 		}
