@@ -85,19 +85,4 @@ class Session {
 
 	}
 
-	/**
-	 * @param $name
-	 * @param $arguments
-	 *
-	 * @throws \BadMethodCallException
-	 */
-	public static function __callStatic($name, $arguments) {
-
-		if (method_exists(self::class, $name)) {
-			self::$name();
-		}
-
-		throw new \BadMethodCallException('Method ' . $name . ' does not exists');
-	}
-
 }
