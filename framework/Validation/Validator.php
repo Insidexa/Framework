@@ -26,11 +26,15 @@ class Validator
 
 		foreach ($rulesModel as $properties => $rules) {
 
+			$messages = '';
+
 			foreach ($rules as $filter) {
 				$result = $filter->checkInput($properties, $this->model->$properties);
 				if (!$result)
-					$this->errors[$properties] .= "<br>" . $filter->getErrors();
+					$messages .= "<br>" . $filter->getErrors();
 			}
+
+			$this->errors[$properties] = $messages;
 
 		}
 
