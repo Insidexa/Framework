@@ -77,12 +77,15 @@ class Controller
 	}
 
 	/**
-	 * @param $url
-	 * @param $message
+	 * @param        $url
+	 * @param string $message
+	 * @param string $type
 	 *
 	 * @return ResponseRedirect
 	 */
-	protected function redirect ($url, $message = '') {
+	protected function redirect ($url, $message = '', $type = '') {
+
+		Service::get('session')->addFlushMessage($message, $type);
 
 		return new ResponseRedirect($url);
 
