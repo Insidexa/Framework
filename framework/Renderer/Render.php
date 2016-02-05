@@ -11,6 +11,7 @@ namespace Framework\Renderer;
 
 use Exception;
 use Framework\DI\Service;
+use Framework\Router\Dispatcher;
 
 /**
  * Class Render
@@ -22,14 +23,7 @@ class Render {
 	/**
 	 * @var string
 	 */
-	/*private $mainLayout = 'layout.html';*/
-
-	/**
-	 * @var string
-	 */
 	private $layoutExtension = '.php';
-
-	public function __construct() {}
 
 	/**
 	 * @param      $pathView
@@ -40,7 +34,10 @@ class Render {
 	 */
 	public function render ($pathView, $data = null ) {
 
-		$path = $pathView . $this->layoutExtension;
+		$path = $pathView;
+
+		if (!strripos($pathView, $this->layoutExtension))
+			$path = $pathView . $this->layoutExtension;
 
 		if (!file_exists($path)) throw new Exception('File ' . $path . ' not found');
 
@@ -53,8 +50,6 @@ class Render {
 		}
 
 		return $content;
-
-		//include($this->mainLayout . $this->layoutExtension);
 	}
 
 	/**
@@ -66,11 +61,7 @@ class Render {
 	private function getRenderBuffer ($pathView, $data = null) {
 
 		$include = function ($controller, $method, array $arguments = [] ) {
-
-			$methodName = $method . 'Action';
-
-			$controllerObj = new $controller;
-			$controllerObj->$methodName($arguments);
+			Dispatcher::create($controller, $method, $arguments);
 		};
 
 		$getRoute = function ($route, array $params = []) {
@@ -78,8 +69,14 @@ class Render {
 		};
 
 		$generateToken = function () {
-			return random_int(1000, 2132133);
+			$token = Service::get('security')->getToken();
+			$html = '<input type="hidden" value="' . $token . '">';
+			echo $html;
 		};
+
+		$flush = Service::get('session')->getFlushMessages();
+		$user = Service::get('security')->getUser();
+		$route['_name'] = Service::get('router')->getNameRoute();
 
 		if ($data !== null) extract($data);
 
