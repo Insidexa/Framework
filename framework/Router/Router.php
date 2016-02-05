@@ -29,6 +29,8 @@ class Router {
 	private $_scriptUrl;
 	private $_baseUrl;
 
+	private $nameRoute = '';
+
 	public function __construct($config) {
 		$this->config = $config;
 
@@ -200,12 +202,20 @@ class Router {
 		return $this->urlParams;
 	}
 
+	public function getNameRoute () {
+
+		return $this->nameRoute;
+
+	}
+
 	protected function getRouteFromConfig() {
-		foreach ($this->config as $_next) {
+		foreach ($this->config as $nameRoute => $_next) {
 			$patterExplode = explode('/', preg_replace("/^\//", '', $_next['pattern']));
 
 			if ($patterExplode[0] === '') {
+
 				if ($this->controllerName === $this->defaultControllerName) {
+					$this->nameRoute = $nameRoute;
 					$this->controllerName = $_next['controller'];
 					$this->actionName = $_next['action'];
 				}
@@ -213,7 +223,7 @@ class Router {
 				//echo $this->controllerName . "<br/>";
 
 				if (sizeof($this->segments) === sizeof($patterExplode)) {
-					$requirement = isset($_next['_requirements']) ? $_next['_requirements'] : array('_method' => 'GET');
+					$requirement = isset($_next['_requirements']) ? $_next['_requirements'] : array('_method' => $this->method);
 					$pattern = '/' . str_replace('/', "\\/", $_next['pattern']) . "/i";
 					if ($requirement) {
 
@@ -222,12 +232,11 @@ class Router {
 						}
 
 						if (isset($requirement['_method']) && (strtolower($requirement['_method']) !== strtolower($this->method))) {
-							throw new HttpNotFoundException('Method mismatched');
-							/*echo 'Error. Method mismatched!';
-							var_dump($_next, $requirement, $this->method);
-							continue;*/
+							continue;
 						} else if (preg_match($pattern, '/' . implode('/', $this->segments))) {
 							//echo "Route found";
+
+							$this->nameRoute = $nameRoute;
 
 							$this->controllerName = $_next['controller'];
 							$this->actionName = $_next['action'];
