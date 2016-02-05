@@ -29,7 +29,9 @@ class Session {
 			session_start();
 		}
 
-		$this->returnUrl = $_SERVER['HTTP_REFERER'];
+		if (isset($_SERVER['HTTP_REFERER'])) {
+			$this->returnUrl = $_SERVER['HTTP_REFERER'];
+		}
 
 	}
 
