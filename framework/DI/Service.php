@@ -22,6 +22,7 @@ class Service {
 	 * @param $service
 	 *
 	 * @return mixed
+	 * @throws ServiceNotFoundException
 	 */
 	public static function get($service) {
 		return self::issetService($service);
@@ -41,7 +42,7 @@ class Service {
 	 * @return mixed
 	 * @throws ServiceNotFoundException
 	 */
-	private function issetService($service) {
+	private static function issetService($service) {
 
 		if (array_key_exists($service, self::$services)) {
 			return self::$services[ $service ];
@@ -56,7 +57,7 @@ class Service {
 	 * @return mixed
 	 */
 	public function __get($service) {
-		return $this->issetService($service);
+		return self::issetService($service);
 	}
 
 	/**
