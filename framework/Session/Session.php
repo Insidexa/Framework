@@ -81,7 +81,21 @@ class Session {
 				break;
 		}
 
+	}
 
+	public function addFlushMessage ($message, $type) {
+
+		$flush = $this->get('flush');
+
+		if ($type === '') {
+
+			$flush['info'][] = $message;
+
+		} else {
+
+			$flush[$type][] = $message;
+
+		}
 
 	}
 
