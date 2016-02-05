@@ -83,6 +83,12 @@ class Session {
 
 	}
 
+	public function getFlushMessages () {
+
+		return ($this->get('flush') === false) ? [] : $this->get('flush');
+
+	}
+
 	public function addFlushMessage ($message, $type) {
 
 		$flush = $this->get('flush');
