@@ -84,7 +84,7 @@ class Request {
 		$this->clientIp = $_SERVER['SERVER_ADDR'];
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$this->timeRequest = $_SERVER['REQUEST_TIME'];
-		$this->scheme = ($_SERVER['HTTPS'] === null) ? 'http' : $_SERVER['HTTPS'];
+		$this->scheme = (isset($_SERVER['HTTPS'])) ?? 'http';
 		$this->host = $_SERVER['HTTP_HOST'];
 		$this->uri = $_SERVER['REQUEST_URI'];
 	}
