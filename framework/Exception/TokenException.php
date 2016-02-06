@@ -10,6 +10,6 @@
 namespace Framework\Exception;
 
 
-class TokenException {
+class TokenException extends \Exception{
 
 }
