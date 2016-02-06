@@ -91,7 +91,7 @@ class Session {
 
 	public function addFlushMessage ($message, $type) {
 
-		$flush = $this->get('flush');
+		$flush = [];
 
 		if ($type === '') {
 
@@ -102,6 +102,8 @@ class Session {
 			$flush[$type][] = $message;
 
 		}
+
+		$this->set('flush', $flush);
 
 	}
 
