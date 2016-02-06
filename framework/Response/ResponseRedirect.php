@@ -8,7 +8,29 @@
 
 namespace Framework\Response;
 
+/**
+ * Class ResponseRedirect
+ *
+ * @package Framework\Response
+ */
+class ResponseRedirect extends Response {
 
-class ResponseRedirect {
+	/**
+	 * @var string
+	 */
+	protected $header = 'Location: ';
+
+	/**
+	 * ResponseRedirect constructor.
+	 *
+	 * @param     $url
+	 * @param int $code
+	 */
+	public function __construct($url, $code = 200) {
+
+		http_response_code(200);
+		header($this->header . $url);
+
+	}
 
 }

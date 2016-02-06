@@ -8,7 +8,32 @@
 
 namespace Framework\Response;
 
+/**
+ * Class JsonResponse
+ *
+ * @package Framework\Response
+ */
+class JsonResponse extends Response {
 
-class JsonResponse {
+	/**
+	 * @var string
+	 */
+	protected $header = 'Content-Type: application/json';
+
+	/**
+	 * JsonResponse constructor.
+	 *
+	 * @param     $content
+	 * @param int $code
+	 */
+	public function __construct($content, $code = 200) {
+
+		$this->code = $code;
+
+		$json = json_encode($content);
+		http_response_code($this->code);
+		header($this->header);
+		echo $json;
+	}
 
 }
