@@ -70,7 +70,7 @@ class Render {
 
 		$generateToken = function () {
 			$token = Service::get('security')->getToken();
-			$html = '<input type="hidden" value="' . $token . '">';
+			$html = '<input type="hidden" name="_token" value="' . $token . '">';
 			echo $html;
 		};
 
