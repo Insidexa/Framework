@@ -8,20 +8,21 @@
 
 namespace Framework;
 
-use Framework\Database\PDOConnector;
-use Framework\DI\Service;
-use Framework\Exception\TokenException;
-use Framework\Renderer\Render;
-use Framework\Request\Request;
-use Framework\Response\JsonResponse;
-use Framework\Response\Response;
-use Framework\Response\ResponseRedirect;
-use Framework\Router\Dispatcher;
-use Framework\Router\Router;
-use Framework\Exception\HttpNotFoundException;
-use Framework\Security\Security;
-use Framework\Session\Session;
-
+use Framework\ {
+	Database\PDOConnector,
+	DI\Service,
+	Exception\TokenException,
+	Renderer\Render,
+	Request\Request,
+	Response\JsonResponse,
+	Response\Response,
+	Response\ResponseRedirect,
+	Router\Dispatcher,
+	Router\Router,
+	Exception\HttpNotFoundException,
+	Security\Security,
+	Session\Session
+};
 /**
  * Class Application
  *
