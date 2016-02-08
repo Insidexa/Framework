@@ -19,7 +19,7 @@ use Framework\Router\Router;
  * @package Framework\Controller
  *
  */
-class Controller
+abstract class Controller
 {
 
 	/**
