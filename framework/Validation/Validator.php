@@ -34,7 +34,8 @@ class Validator
 					$messages .= "<br>" . $filter->getErrors();
 			}
 
-			$this->errors[$properties] = $messages;
+			if (!empty($messages))
+				$this->errors[$properties] = $messages;
 
 		}
 
