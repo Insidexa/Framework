@@ -30,6 +30,7 @@ class Router {
 	private $_baseUrl;
 
 	private $nameRoute = '';
+	private $security = '';
 
 	public function __construct($config) {
 		$this->config = $config;
@@ -218,6 +219,7 @@ class Router {
 					$this->nameRoute = $nameRoute;
 					$this->controllerName = $_next['controller'];
 					$this->actionName = $_next['action'];
+					$this->security = $_next['security'] ?? '';
 				}
 			} else if ($patterExplode[0] === $this->controllerName) {
 				//echo $this->controllerName . "<br/>";
@@ -240,6 +242,7 @@ class Router {
 
 							$this->controllerName = $_next['controller'];
 							$this->actionName = $_next['action'];
+							$this->security = $_next['security'] ?? '';
 
 							$newSegment = array();
 
@@ -274,7 +277,8 @@ class Router {
 		return [
 			'controller' => (!empty($this->controllerName)) ? $this->controllerName : $this->defaultControllerName,
 			'method' => (!empty($this->actionName)) ? $this->actionName : $this->defaultActionName,
-			'params' => $this->urlParams
+			'params' => $this->urlParams,
+			'security' => $this->security
 		];
 	}
 

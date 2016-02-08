@@ -26,16 +26,28 @@ class Security {
 
 	}
 
+	/**
+	 * @param $role
+	 *
+	 * @throws \Exception
+	 */
 	public function acl ($role) {
 
 		$user = $this->getUser();
 
-		if ($role !== $user->role) {
+		if ($user === null) {
+			throw new \Exception('Permission denied: Unautorized');
+		}
+
+		if (!in_array($user->role, $role)) {
 			throw new \Exception('Permission denied');
 		}
 
 	}
 
+	/**
+	 * @return mixed
+	 */
 	public function getToken () {
 
 		$token = Service::get('session')->get('token');
@@ -46,6 +58,9 @@ class Security {
 
 	}
 
+	/**
+	 * @return mixed
+	 */
 	private function newToken () {
 
 		return Service::get('session')->set('token', md5(random_int(0, 1000)));

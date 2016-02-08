@@ -112,6 +112,10 @@ class Application
 				$this->{$map['method']}();
 			}
 
+			if (is_array($map['security'])) {
+				Service::get('security')->acl($map['security']);
+			}
+
 			if (Service::get('request')->isPost()) {
 
 				if (Service::get('request')->post('_token') !== Service::get('security')->getToken()) {
@@ -170,7 +174,7 @@ class Application
 	 * @throws HttpNotFoundException
 	 */
 	private function notFound () {
-		throw new HttpNotFoundException('Page not found');
+		$this->appError('Page not found', 404);
 	}
 
 }
