@@ -200,16 +200,14 @@ class ActiveRecordLayout extends PDOConnector {
 
 		if (is_bool($stmp)) return $stmp;
 
-		while ($object = $stmp->fetch()) {
-			$this->data[] = $object;
-		}
+		$this->data = $stmp->fetchAll();
 
 		if (count($this->data) === 1) {
 			$this->data = $this->data[0];
 		}
 
 		if (count($this->data) === 0) {
-			return false;
+			return [];
 		}
 
 		return $this->data;
