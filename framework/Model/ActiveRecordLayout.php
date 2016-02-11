@@ -42,6 +42,11 @@ class ActiveRecordLayout extends PDOConnector {
 	private $_model = '';
 
 	/**
+	 * @var string
+	 */
+	private $metaData = '';
+
+	/**
 	 * ActiveRecord constructor.
 	 */
 	public function __construct($data) {
@@ -64,6 +69,7 @@ class ActiveRecordLayout extends PDOConnector {
 		if (strstr($name, 'findBy', false)) {
 			$columnName = strtolower(str_replace('findBy', '', $name));
 			if ($this->findColumn($columnName)) {
+				$this->metaData = 'one';
 				return $this->selectDB()
 					->select('*')
 					->where([$columnName => $arguments[0]])
@@ -133,6 +139,7 @@ class ActiveRecordLayout extends PDOConnector {
 
 		switch ($data) {
 			case is_int($data):
+				$this->metaData = 'one';
 				return $this->selectDB()
 					->where(['id' => $data])->get();
 				break;
@@ -202,8 +209,8 @@ class ActiveRecordLayout extends PDOConnector {
 
 		$this->data = $stmp->fetchAll();
 
-		if (count($this->data) === 1) {
-			$this->data = $this->data[0];
+		if ($this->metaData === 'one') {
+			return $this->data[0];
 		}
 
 		if (count($this->data) === 0) {
