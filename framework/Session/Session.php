@@ -73,6 +73,7 @@ class Session {
 		switch($type) {
 			case 'string':
 			case 'object':
+			case 'array':
 				$_SESSION[$name] = $value;
 				break;
 
