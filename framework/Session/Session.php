@@ -54,6 +54,17 @@ class Session {
 	}
 
 	/**
+	 * @param $name
+	 */
+	public function delete ($name) {
+
+		if (array_key_exists($name, $_SESSION)) {
+			unset($_SESSION[$name]);
+		}
+
+	}
+
+	/**
 	 * @return mixed
 	 */
 	public function all () {
@@ -71,6 +82,8 @@ class Session {
 		$type = gettype($value);
 
 		switch($type) {
+			case 'boolean':
+			case 'resource':
 			case 'string':
 			case 'object':
 			case 'array':
@@ -94,14 +107,16 @@ class Session {
 
 		$flush = [];
 
-		if ($type === '') {
+		if (!empty($message)) {
+			if ($type === '') {
 
-			$flush['info'][] = $message;
+				$flush['info'][] = $message;
 
-		} else {
+			} else {
 
-			$flush[$type][] = $message;
+				$flush[$type][] = $message;
 
+			}
 		}
 
 		$this->set('flush', $flush);

@@ -75,6 +75,11 @@ class Render {
 		};
 
 		$flush = Service::get('session')->getFlushMessages();
+
+		if (strripos($pathView, 'layout')) {
+			Service::get('session')->delete('flush');
+		}
+
 		$user = Service::get('security')->getUser();
 		$route['_name'] = Service::get('router')->getNameRoute();
 
