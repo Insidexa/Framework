@@ -9,17 +9,47 @@
 namespace Framework\Validation;
 
 
+use Framework\DI\Service;
+
+/**
+ * Class Validator
+ *
+ * @package Framework\Validation
+ */
 class Validator
 {
+	/**
+	 * @var array
+	 */
 	private $errors = [];
+
+	/**
+	 * @var object
+	 */
 	private $model;
 
+	/**
+	 * @var string
+	 */
+	private $modelName;
+
+	/**
+	 * Validator constructor.
+	 *
+	 * @param $model
+	 */
 	public function __construct($model) {
 		$this->model = $model;
+
+		$reflection = new \ReflectionClass($model);
+		$this->modelName = strtolower($reflection->getShortName());
 
 		$this->check();
 	}
 
+	/**
+	 *
+	 */
 	private function check () {
 
 		$rulesModel = $this->model->getRules();
@@ -41,13 +71,25 @@ class Validator
 
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getErrors () {
 		return $this->errors;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function isValid () {
+
 		$isErrors = false;
+		Service::get('session')->set('validator.data', [
+			$this->modelName => $this->model
+		]);
+
 		if (count($this->errors) === 0) {
+			Service::get('session')->delete($this->modelName);
 			$isErrors = true;
 		}
 

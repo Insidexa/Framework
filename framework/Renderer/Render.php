@@ -83,6 +83,10 @@ class Render {
 		$user = Service::get('security')->getUser();
 		$route['_name'] = Service::get('router')->getNameRoute();
 
+		if (Service::get('session')->get('validator.data') !== false) {
+			extract(Service::get('session')->get('validator.data'));
+		}
+
 		if ($data !== null) extract($data);
 
 		ob_start();
