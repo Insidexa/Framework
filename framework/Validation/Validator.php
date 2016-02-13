@@ -89,7 +89,7 @@ class Validator
 		]);
 
 		if (count($this->errors) === 0) {
-			Service::get('session')->delete($this->modelName);
+			Service::get('session')->delete('validator.data');
 			$isErrors = true;
 		}
 
