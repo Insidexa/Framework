@@ -97,7 +97,7 @@ class PDOConnector {
 	/**
 	 * @param array $config
 	 *
-	 * @return null
+	 * @return \PDO
 	 * @throws DatabaseException
 	 */
 	public static function getInstance(array $config = []) {
@@ -231,7 +231,6 @@ class PDOConnector {
 			case 'SELECT':
 
 				$this->currentSql .= $this->getStringColumns();
-
 				$this->currentSql .= ' FROM ' . $this->_table;
 
 				if (!empty($this->where)) {
@@ -239,7 +238,6 @@ class PDOConnector {
 				}
 
 				if (!empty($this->orderBy)) {
-
 					$this->currentSql .= $this->getStringOrderBy();
 				}
 
@@ -255,9 +253,7 @@ class PDOConnector {
 
 				$this->currentSql .= ' ' . $this->_table;
 				$this->currentSql .= ' SET';
-
 				$this->currentSql .= $this->getStringUpdate();
-
 				$this->currentSql .= $this->getStringWhere();
 
 				$this->queryEnd();
@@ -268,7 +264,6 @@ class PDOConnector {
 
 				$this->currentSql .= ' INTO ';
 				$this->currentSql .= $this->_table;
-
 				$this->currentSql .= $this->insert;
 
 				$this->queryEnd();

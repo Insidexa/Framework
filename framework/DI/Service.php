@@ -17,6 +17,18 @@ class Service {
 	 */
 	public static $services = [];
 
+	/**
+	 * Service constructor.
+	 */
+	private function __construct() {
+	}
+
+	/**
+	 *
+	 */
+	private function __clone() {
+		// TODO: Implement __clone() method.
+	}
 
 	/**
 	 * @param $service
@@ -61,8 +73,8 @@ class Service {
 	}
 
 	/**
-	 * @param $name
-	 * @param $value
+	 * @param string $name
+	 * @param object $value
 	 */
 	public function __set($name, $value) {
 		self::$services[ $name ] = $value;

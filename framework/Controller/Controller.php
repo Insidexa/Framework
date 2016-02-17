@@ -46,6 +46,8 @@ abstract class Controller
 	/**
 	 * @param $viewName
 	 * @param $data
+	 *
+	 * @return string
 	 */
 	protected function render ($viewName, $data) {
 
@@ -68,7 +70,7 @@ abstract class Controller
 	 * @param       $nameRoute
 	 * @param array $params
 	 *
-	 * @return Router
+	 * @return string
 	 */
 	protected function generateRoute ($nameRoute, array $params = []) {
 
