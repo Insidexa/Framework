@@ -8,6 +8,7 @@
  */
 
 namespace Framework\Router;
+use Framework\Exception\ClassNotFound;
 
 /**
  * Class Dispatcher
@@ -22,20 +23,20 @@ class Dispatcher {
 	 * @param array $arguments
 	 *
 	 * @return mixed
-	 * @throws \ErrorException | \BadMethodCallException
+	 * @throws ClassNotFound | \BadMethodCallException
 	 */
 	public static function create ($controller, $method, $arguments) {
 
 		$methodName = $method . 'Action';
 
 		if (!class_exists($controller)) {
-			throw new \ErrorException('Class ' . $controller . ' not found');
+			throw new ClassNotFound('Class ' . $controller . ' not found', 500);
 		}
 
 		$controllerObj = new $controller;
 
 		if (!method_exists($controllerObj, $methodName)) {
-			throw new \BadMethodCallException('Method ' . $methodName . ' not found in ' . $controller);
+			throw new \BadMethodCallException('Method ' . $methodName . ' not found in ' . $controller, 500);
 		}
 
 		$reflectionMethod = new \ReflectionMethod($controller, $methodName);
