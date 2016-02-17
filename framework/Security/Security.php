@@ -9,6 +9,8 @@
 
 namespace Framework\Security;
 use Framework\DI\Service;
+use Framework\Exception\AuthLoginException;
+use Framework\Response\ResponseRedirect;
 
 /**
  * Class Security
@@ -17,10 +19,16 @@ use Framework\DI\Service;
  */
 class Security {
 
+	private $loginUrl;
+
 	/**
 	 * Security constructor.
+	 *
+	 * @param $url
 	 */
-	public function __construct() {
+	public function __construct($url) {
+
+		$this->loginUrl = $url;
 
 		$this->getToken();
 
@@ -30,17 +38,20 @@ class Security {
 	 * @param $role
 	 *
 	 * @throws \Exception
+	 *
+	 * @return ResponseRedirect
 	 */
 	public function acl ($role) {
 
 		$user = $this->getUser();
 
 		if ($user === null) {
-			throw new \Exception('Permission denied: Unautorized');
+			return new ResponseRedirect($this->loginUrl, 301);
+			//throw new AuthLoginException('Unautorized', 401);
 		}
 
 		if (!in_array($user->role, $role)) {
-			throw new \Exception('Permission denied');
+			throw new \Exception('Permission denied', 403);
 		}
 
 	}
@@ -52,9 +63,7 @@ class Security {
 
 		$token = Service::get('session')->get('token');
 
-		if (!empty($token)) return $token;
-
-		return $this->newToken();
+		return (!empty($token)) ? $token : $this->newToken();
 
 	}
 
