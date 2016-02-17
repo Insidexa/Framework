@@ -16,23 +16,23 @@ namespace Framework\Response;
 class JsonResponse extends Response {
 
 	/**
-	 * @var string
-	 */
-	protected $header = 'Content-Type: application/json';
-
-	/**
 	 * JsonResponse constructor.
 	 *
 	 * @param     $content
 	 * @param int $code
 	 */
-	public function __construct($content, $code = 200) {
+	public function __construct($content = '', $code = 200) {
 
 		$this->code = $code;
+		$this->content = $content;
 
-		$json = json_encode($content);
-		http_response_code($this->code);
-		header($this->header);
+		$this->addHeader('Content-Type', 'application/json');
+
+		$this->send();
+	}
+
+	public function sendBody() {
+		$json = json_encode($this->content);
 		echo $json;
 	}
 

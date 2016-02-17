@@ -19,12 +19,14 @@ class Response
 	/**
 	 * @var array
 	 */
-	protected $header = 'Content-Type: text/html';
+	protected $headers = [
+		'Content-Type' => 'text/html'
+	];
 
 	/**
 	 * @var int
 	 */
-	protected $code;
+	protected $code = 200;
 
 	/**
 	 * @var string
@@ -37,7 +39,7 @@ class Response
 	 * @param $content
 	 * @param $code
 	 */
-	public function __construct($content, $code = 200) {
+	public function __construct($content = '', $code = 200) {
 
 		$this->code = $code;
 		$this->content = $content;
@@ -52,8 +54,19 @@ class Response
 	 */
 	public function addHeader ($name, $value) {
 
-		$this->header = $name . ': ' . $value;
+		$this->headers[$name] = $value;
 
+	}
+
+	protected function sendHeader () {
+		header($_SERVER['SERVER_PROTOCOL'] . ' ' . $this->code);
+		foreach($this->headers as $key => $value) {
+			header(sprintf('%s: %s', $key, $value));
+		}
+	}
+
+	protected function sendBody () {
+		echo $this->content;
 	}
 
 	/**
@@ -61,10 +74,8 @@ class Response
 	 */
 	public function send () {
 
-		http_response_code($this->code);
-		header($this->header);
-
-		echo $this->content;
+		$this->sendHeader();
+		$this->sendBody();
 
 	}
 
