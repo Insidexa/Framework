@@ -23,6 +23,7 @@ use Framework\ {
 	Security\Security,
 	Session\Session
 };
+
 /**
  * Class Application
  *
@@ -30,11 +31,6 @@ use Framework\ {
  */
 class Application
 {
-
-	/**
-	 * @var string
-	 */
-	private $nameBundle = '';
 
 	/**
 	 * @var array
@@ -50,13 +46,13 @@ class Application
 	 */
 	public function __construct($config) {
 
-		if (is_readable($config)) {
+		if (file_exists($config) && is_readable($config)) {
 			$this->config = include($config);
 
 			$this->showErrors();
 
 		} else {
-			$this->appError('Config not readable');
+			$this->appError('Config not readable', 500);
 		}
 
 	}
@@ -71,7 +67,9 @@ class Application
 				break;
 
 			case 'production':
-
+				ini_set('display_errors', 0);
+				ini_set('display_startup_errors', 0);
+				error_reporting(0);
 				break;
 		}
 
@@ -107,8 +105,6 @@ class Application
 			$this->createServices();
 			$map = Service::get('router')->getMap();
 
-			$this->nameBundle = explode('\\', $map['controller']);
-
 			if ($map['method'] === 'notFound') {
 				$this->{$map['method']}();
 			}
@@ -129,9 +125,13 @@ class Application
 
 			$this->returnResponse($response);
 
+		} catch (HttpNotFoundException $e) {
+
+			$this->appError($e->getMessage(), 404);
+
 		} catch (\Exception $e) {
 
-			$this->appError($e->getMessage());
+			$this->appError($e->getMessage(), $e->getCode());
 
 		}
 
@@ -144,11 +144,7 @@ class Application
 	 */
 	private function returnResponse ($response) {
 
-		if ($response instanceof JsonResponse) {
-			return $response;
-		}
-
-		if ($response instanceof ResponseRedirect) {
+		if ($response instanceof JsonResponse || $response instanceof ResponseRedirect) {
 			return $response;
 		}
 
@@ -165,7 +161,7 @@ class Application
 		Service::set('request', new Request());
 		Service::set('db', PDOConnector::getInstance($this->config['pdo']));
 		Service::set('session', new Session());
-		Service::set('security', new Security());
+		Service::set('security', new Security($this->config['security']['login_route']));
 		Service::set('router', new Router($this->config['routes']));
 		Service::set('render', new Render());
 
@@ -175,7 +171,7 @@ class Application
 	 * @throws HttpNotFoundException
 	 */
 	private function notFound () {
-		$this->appError('Page not found', 404);
+		throw new HttpNotFoundException('Page not found', 404);
 	}
 
 }
