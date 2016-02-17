@@ -209,7 +209,7 @@ class ActiveRecordLayout extends PDOConnector {
 
 		$this->data = $stmp->fetchAll();
 
-		if ($this->metaData === 'one') {
+		if ($this->metaData === 'one' && count($this->data) > 0) {
 			return $this->data[0];
 		}
 
