@@ -11,6 +11,8 @@ namespace Framework\Renderer;
 
 use Exception;
 use Framework\DI\Service;
+use Framework\Helpers\Helper;
+use Framework\Router\Dispatcher;
 
 /**
  * Class Render
@@ -22,55 +24,47 @@ class Render {
 	/**
 	 * @var string
 	 */
-	/*private $mainLayout = 'layout.html';*/
-
-	/**
-	 * @var string
-	 */
 	private $layoutExtension = '.php';
 
-	public function __construct() {}
+	private $mainLayout;
+
+	/**
+	 * Render constructor.
+	 *
+	 * @param $mainLayout
+	 */
+	public function __construct($mainLayout) {
+
+		$this->mainLayout = $mainLayout;
+
+	}
 
 	/**
 	 * @param      $pathView
 	 * @param null $data
+	 * @param boolean $withMain
 	 *
 	 * @return null|string
 	 * @throws Exception
 	 */
-	public function render ($pathView, $data = null ) {
+	public function render ($pathView, $data = null, $withMain = false ) {
 
-		$include = function ($controller, $method, array $arguments = [] ) {
+		$path = $pathView;
 
-			$methodName = $method . 'Action';
-
-			$controllerObj = new $controller;
-			$controllerObj->$methodName($arguments);
-		};
-
-		$getRoute = function ($route, array $params = []) {
-			return Service::get('router')->buildRoute($route, $params);
-		};
-
-		$generateToken = function () {
-			return random_int(1000, 2132133);
-		};
-
-		$path = $pathView . $this->layoutExtension;
+		if (!strripos($pathView, $this->layoutExtension))
+			$path = $pathView . $this->layoutExtension;
 
 		if (!file_exists($path)) throw new Exception('File ' . $path . ' not found');
 
-		$content = null;
+		$content = $this->getRenderBuffer($path, $data);
 
-		if ($data === null) {
-			$content = $this->getRenderBuffer($path);
-		} else {
-			$content = $this->getRenderBuffer($path, $data);
+		if ($withMain) {
+			$content = $this->render($this->mainLayout, [
+				'content' => $content
+			]);
 		}
 
 		return $content;
-
-		//include($this->mainLayout . $this->layoutExtension);
 	}
 
 	/**
@@ -80,6 +74,22 @@ class Render {
 	 * @return string
 	 */
 	private function getRenderBuffer ($pathView, $data = null) {
+
+		$include = Helper::include();
+		$getRoute = Helper::buildRoute();
+		$generateToken = Helper::getTokenField();
+		$flush = Service::get('session')->getFlushMessages();
+
+		if (strripos($pathView, 'layout')) {
+			Service::get('session')->delete('flush');
+		}
+
+		$user = Service::get('security')->getUser();
+		$route['_name'] = Service::get('router')->getNameRoute();
+
+		if (Service::get('session')->get('validator.data') !== false) {
+			extract(Service::get('session')->get('validator.data'));
+		}
 
 		if ($data !== null) extract($data);
 
