@@ -2,7 +2,6 @@
 
 namespace Framework\Router;
 use Framework\DI\Service;
-use Framework\Exception\HttpNotFoundException;
 
 /**
  * Class Router
@@ -119,33 +118,6 @@ class Router {
 	 */
 	public function getUrlPath() {
 		return $this->urlPath;
-	}
-
-	/**
-	 * @param $name
-	 *
-	 * @return mixed
-	 */
-	public function __get($name) {
-		$methodName = 'get' . ucfirst($name);
-		if (method_exists($this, $methodName)) {
-			return $this->{$methodName}();
-		} else if (property_exists($this, $name) && $this->checkPublicProperty($name)) {
-			return $this->{$name};
-		}
-	}
-
-	/**
-	 * @param $name
-	 * @param $value
-	 */
-	public function __set($name, $value) {
-		$methodName = 'set' . ucfirst($name);
-		if (method_exists($this, $methodName)) {
-			$this->{$methodName}($value);
-		} else if (property_exists($this, $name) && $this->checkPublicProperty($name)) {
-			$this->{$name} = $value;
-		}
 	}
 
 	/**
