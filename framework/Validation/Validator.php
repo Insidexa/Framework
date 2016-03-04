@@ -83,16 +83,16 @@ class Validator
 	 */
 	public function isValid () {
 
-		$isErrors = false;
+		$isValid = false;
 		Service::get('session')->set('validator.data', [
 			$this->modelName => $this->model
 		]);
 
 		if (count($this->errors) === 0) {
 			Service::get('session')->delete('validator.data');
-			$isErrors = true;
+			$isValid = true;
 		}
 
-		return $isErrors;
+		return $isValid;
 	}
 }

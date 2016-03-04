@@ -8,25 +8,46 @@
 
 namespace Framework\Validation\Filter;
 
-
+/**
+ * Class NotBlank
+ *
+ * @package Framework\Validation\Filter
+ */
 class NotBlank
 {
+	/**
+	 * @var string
+	 */
 	private $error = '';
 
+	/**
+	 * NotBlank constructor.
+	 */
 	public function __construct() {}
 
+	/**
+	 * @return string
+	 */
 	public function getErrors () {
 		return $this->error;
 	}
 
+	/**
+	 * @param $nameField
+	 * @param $value
+	 *
+	 * @return bool
+	 */
 	public function checkInput ($nameField, $value) {
+
+		$flag = true;
 
 		if (empty($value)) {
 			$this->error = 'Field ' . $nameField . ' empty';
 
-			return false;
+			$flag = false;
 		}
 
-		return true;
+		return $flag;
 	}
 }
