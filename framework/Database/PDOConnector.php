@@ -367,8 +367,6 @@ class PDOConnector {
 			}
 		}
 
-		$columnsSql = ' *';
-
 		return $columnsSql;
 	}
 
