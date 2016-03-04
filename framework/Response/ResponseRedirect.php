@@ -23,11 +23,9 @@ class ResponseRedirect extends Response {
 	 */
 	public function __construct($url, $code = 301) {
 
-		$this->code = $code;
-
 		$this->addHeader('Location', $url);
 
-		$this->send();
+		parent::__construct('', $code);
 
 	}
 

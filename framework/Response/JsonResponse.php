@@ -23,12 +23,10 @@ class JsonResponse extends Response {
 	 */
 	public function __construct($content = '', $code = 200) {
 
-		$this->code = $code;
-		$this->content = $content;
-
 		$this->addHeader('Content-Type', 'application/json');
 
-		$this->send();
+		parent::__construct($content, $code);
+
 	}
 
 	public function sendBody() {
