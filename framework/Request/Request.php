@@ -12,7 +12,7 @@ namespace Framework\Request;
 /**
  * Class Request
  *
- * @author Jashka
+ * @autor Jashka
  *
  * @package Framework\Request
  */
@@ -32,6 +32,11 @@ class Request {
 	 * @var array
 	 */
 	private $files = [];
+
+	/**
+	 * @var array
+	 */
+	private $cookies = [];
 
 	/**
 	 * @var int|null
@@ -79,7 +84,7 @@ class Request {
 		$this->clientIp = $_SERVER['SERVER_ADDR'];
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$this->timeRequest = $_SERVER['REQUEST_TIME'];
-		$this->scheme = (isset($_SERVER['HTTPS'])) ?? 'http';
+		$this->scheme = ($_SERVER['HTTPS'] === null) ? 'http' : $_SERVER['HTTPS'];
 		$this->host = $_SERVER['HTTP_HOST'];
 		$this->uri = $_SERVER['REQUEST_URI'];
 	}
@@ -103,7 +108,7 @@ class Request {
 	public function post($nameKey) {
 		return array_key_exists($nameKey, $this->post)
 			? $this->filterRequest($this->post[ $nameKey ])
-			: null;
+			: 'NULL';
 	}
 
 	/**
@@ -134,9 +139,6 @@ class Request {
 		return $this->method === 'PUT';
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isAjax () {
 		$flag = false;
 		if (strtolower(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
@@ -166,9 +168,6 @@ class Request {
 		return $this->uri;
 	}
 
-	/**
-	 * @return bool|null|string
-	 */
 	public function getScheme () {
 		return $this->scheme;
 	}
