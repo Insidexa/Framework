@@ -10,6 +10,11 @@ namespace Framework\DI;
 
 use Framework\Exception\ServiceNotFoundException;
 
+/**
+ * Class Service
+ *
+ * @package Framework\DI
+ */
 class Service {
 
 	/**
@@ -45,7 +50,10 @@ class Service {
 	 * @param $service
 	 */
 	public static function set($nameService, $service) {
-		self::$services[ $nameService ] = $service;
+
+		if (is_object($service) || is_callable($service)) {
+			self::$services[ $nameService ] = $service;
+		}
 	}
 
 	/**
