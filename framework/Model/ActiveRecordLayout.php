@@ -47,7 +47,9 @@ class ActiveRecordLayout extends PDOConnector {
 	private $metaData = '';
 
 	/**
-	 * ActiveRecord constructor.
+	 * ActiveRecordLayout constructor.
+	 *
+	 * @param $data
 	 */
 	public function __construct($data) {
 		$this->dataModel = $data['objVars'];
@@ -137,13 +139,15 @@ class ActiveRecordLayout extends PDOConnector {
 	 */
 	public function find($data) {
 
-		switch ($data) {
-			case is_int($data):
+		$type = gettype($data);
+
+		switch ($type) {
+			case 'integer':
 				$this->metaData = 'one';
 				return $this->selectDB()
 					->where(['id' => $data])->get();
 				break;
-			case is_string($data) && $data === 'all':
+			case 'string' && $data === 'all':
 				return $this->select('*')->get();
 				break;
 			default:
@@ -245,19 +249,6 @@ class ActiveRecordLayout extends PDOConnector {
 
 		return $this;
 
-	}
-
-	/**
-	 * @param      $from
-	 * @param null $to
-	 *
-	 * @return $this
-	 */
-	public function limit($from, $to = null) {
-
-		parent::limit($from, $to);
-
-		return $this;
 	}
 
 	/**

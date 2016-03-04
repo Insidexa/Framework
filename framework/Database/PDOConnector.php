@@ -129,15 +129,7 @@ class PDOConnector {
 	 */
 	protected function addColumn($column) {
 
-		switch ($column) {
-			case is_string($column):
-				$this->columns = $column;
-				break;
-
-			case is_array($column):
-				$this->columns = $column;
-				break;
-		}
+		$this->columns = $column;
 
 		return $this;
 
@@ -212,7 +204,7 @@ class PDOConnector {
 	 *
 	 * @return $this
 	 */
-	protected function limit($from, $to = null) {
+	public function limit($from, $to = null) {
 		$this->limit = [
 			'from' => $from,
 			'to'   => $to,
@@ -245,8 +237,6 @@ class PDOConnector {
 					$this->currentSql .= $this->getStringLimit();
 				}
 
-				$this->queryEnd();
-
 				break;
 
 			case 'UPDATE':
@@ -256,8 +246,6 @@ class PDOConnector {
 				$this->currentSql .= $this->getStringUpdate();
 				$this->currentSql .= $this->getStringWhere();
 
-				$this->queryEnd();
-
 				break;
 
 			case 'INSERT':
@@ -266,15 +254,12 @@ class PDOConnector {
 				$this->currentSql .= $this->_table;
 				$this->currentSql .= $this->insert;
 
-				$this->queryEnd();
-
 				break;
 
 			case 'DELETE':
 
 				$this->currentSql .= ' FROM ' . $this->_table;
 				$this->currentSql .= ' ' . $this->getStringWhere();
-				$this->queryEnd();
 
 				break;
 
@@ -282,6 +267,8 @@ class PDOConnector {
 				throw new DatabaseException('Unknown operation: ' . $this->currentSql);
 				break;
 		}
+
+		$this->queryEnd();
 
 		return $this->execute();
 
@@ -394,9 +381,9 @@ class PDOConnector {
 		$whereSql = '';
 
 		foreach ($this->where as $nameColumn => $value) {
-			if (!empty($nameColumn) && !empty($value)) {
+//			if (!empty($nameColumn) && !empty($value)) {
 				$whereSql .= ' `' . $nameColumn . '` = :' . $nameColumn . ' AND';
-			}
+//			}
 		}
 
 		$whereSql = substr($whereSql, 0, -4);

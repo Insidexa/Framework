@@ -13,15 +13,15 @@ namespace Framework\Model;
  *
  * @package Framework\Model
  *
- * @method bool             save()
- * @method mixed            find( $data )
- * @method ActiveRecord     select( $columns )
- * @method bool             update( array $params = [] )
- * @method bool             delete()
- * @method ActiveRecord     where( array $param = [] )
- * @method ActiveRecord     order( array $param = [] )
- * @method ActiveRecord     limit( $from, $to = null )
- * @method object|bool      get()
+ * @method static bool             save()
+ * @method static mixed            find( $data )
+ * @method static ActiveRecord     select( $columns )
+ * @method static bool             update( array $params = [] )
+ * @method static bool             delete()
+ * @method static ActiveRecord     where( array $param = [] )
+ * @method static ActiveRecord     order( array $param = [] )
+ * @method static ActiveRecord     limit( $from, $to = null )
+ * @method static object|bool      get()
  *
  */
 class ActiveRecord {
