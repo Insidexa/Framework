@@ -21,7 +21,9 @@ use Framework\ {
 	Router\Router,
 	Exception\HttpNotFoundException,
 	Security\Security,
-	Session\Session
+	Session\Session,
+	Logger\Logger,
+	Exception\BadResponseTypeException
 };
 
 /**
@@ -78,21 +80,19 @@ class Application
 	/**
 	 * @param     $message
 	 * @param int $code
+	 * @param string $trace
 	 *
 	 * @return Response
 	 */
-	private function appError ($message, $code = 500) {
+	private function appError ($message, $code = 500, $trace = '') {
 
-		$errorRender = Service::get('render')
-			->render($this->config['error_500'], [
-			'message' => $message,
-			'code' => $code
-		]);
+		Logger::getInstance()->error($message . "\r\n" . $trace);
 
 		return new Response(Service::get('render')
-			->render($this->config['main_layout'], [
-			'content' => $errorRender
-		]), $code);
+			->render($this->config['error_500'], [
+				'message' => $message,
+				'code' => $code
+		], true), $code);
 
 	}
 
@@ -131,7 +131,7 @@ class Application
 
 		} catch (\Exception $e) {
 
-			$this->appError($e->getMessage(), $e->getCode());
+			$this->appError($e->getMessage(), $e->getCode(), $e->getTraceAsString());
 
 		}
 
@@ -140,16 +140,17 @@ class Application
 	/**
 	 * @param $response
 	 *
+	 * @throws BadResponseTypeException
+	 *
 	 * @return Response
 	 */
 	private function returnResponse ($response) {
 
-		if ($response instanceof JsonResponse || $response instanceof ResponseRedirect) {
+		if ($response instanceof Response) {
 			return $response;
 		}
 
-		return new Response(Service::get('render')
-			->render($this->config['main_layout'], ['content' => $response]));
+		throw new BadResponseTypeException('Bad response', 500);
 
 	}
 
@@ -161,9 +162,12 @@ class Application
 		Service::set('request', new Request());
 		Service::set('db', PDOConnector::getInstance($this->config['pdo']));
 		Service::set('session', new Session());
-		Service::set('security', new Security($this->config['security']['login_route']));
+		Service::set('security', new Security(
+			$this->config['security']['login_route'],
+			$this->config['security']['user_class']
+		));
 		Service::set('router', new Router($this->config['routes']));
-		Service::set('render', new Render());
+		Service::set('render', new Render($this->config['main_layout']));
 
 	}
 
