@@ -9,9 +9,10 @@
 namespace Framework\Controller;
 
 use Framework\DI\Service;
+use Framework\Helpers\Helper;
 use Framework\Request\Request;
+use Framework\Response\Response;
 use Framework\Response\ResponseRedirect;
-use Framework\Router\Router;
 
 /**
  * Class Controller
@@ -37,9 +38,10 @@ abstract class Controller
 	 */
 	public function __construct() {
 
-		$segmentsNamespace = explode('\\', get_class($this));
-		$this->nameBundle = $segmentsNamespace[0];
-		$this->nameFolder = str_replace('Controller', '', end($segmentsNamespace));
+		$data = Helper::getDataClass(get_class($this));
+
+		$this->nameFolder = $data['nameFolder'];
+		$this->nameBundle = $data['nameBundle'];
 
 	}
 
@@ -51,9 +53,9 @@ abstract class Controller
 	 */
 	protected function render ($viewName, $data) {
 
-		$pathView = __DIR__ . '/../../src/' . $this->nameBundle . '/views/' . $this->nameFolder . '/' . $viewName;
+		$pathView = Helper::viewPath($this->nameBundle, $this->nameFolder, $viewName);
 
-		return Service::get('render')->render($pathView, $data);
+		return new Response(Service::get('render')->render($pathView, $data, true));
 
 	}
 
