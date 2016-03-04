@@ -21,14 +21,20 @@ class Security {
 
 	private $loginUrl;
 
+	private $model;
+
 	/**
 	 * Security constructor.
 	 *
 	 * @param $url
+	 *
+	 * @param $model
+	 *
 	 */
-	public function __construct($url) {
+	public function __construct($url, $model) {
 
 		$this->loginUrl = $url;
+		$this->model = $model;
 
 		$this->getToken();
 
@@ -46,7 +52,7 @@ class Security {
 		$user = $this->getUser();
 
 		if ($user === null) {
-			return new ResponseRedirect($this->loginUrl, 301);
+			return new ResponseRedirect($this->loginUrl);
 			//throw new AuthLoginException('Unautorized', 401);
 		}
 
@@ -57,7 +63,7 @@ class Security {
 	}
 
 	/**
-	 * @return mixed
+	 * @return string
 	 */
 	public function getToken () {
 
@@ -97,12 +103,18 @@ class Security {
 	 */
 	public function setUser ($model) {
 
-		Service::get('session')->set('user', $model);
+		$user = new $this->model;
+		$user->id = $model->id;
+		$user->email = $model->email;
+		$user->role = $model->role;
+		//$user->password = $model->password;
+
+		Service::get('session')->set('user', $user);
 
 	}
 
 	/**
-	 * @return mixed
+	 * @return null|object
 	 */
 	public function getUser () {
 
