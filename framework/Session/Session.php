@@ -97,12 +97,19 @@ class Session {
 
 	}
 
+	/**
+	 * @return array|bool
+	 */
 	public function getFlushMessages () {
 
 		return ($this->get('flush') === false) ? [] : $this->get('flush');
 
 	}
 
+	/**
+	 * @param $message
+	 * @param $type
+	 */
 	public function addFlushMessage ($message, $type) {
 
 		$flush = [];
