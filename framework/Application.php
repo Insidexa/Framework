@@ -23,7 +23,8 @@ use Framework\ {
 	Security\Security,
 	Session\Session,
 	Logger\Logger,
-	Exception\BadResponseTypeException
+	Exception\BadResponseTypeException,
+	Config\Config
 };
 
 /**
@@ -35,11 +36,6 @@ class Application
 {
 
 	/**
-	 * @var array
-	 */
-	private $config = [];
-
-	/**
 	 * Application constructor.
 	 *
 	 * @param $config
@@ -49,7 +45,9 @@ class Application
 	public function __construct($config) {
 
 		if (file_exists($config) && is_readable($config)) {
-			$this->config = include($config);
+			$config = include($config);
+
+			Service::set('config', new Config($config));
 
 			$this->showErrors();
 
@@ -61,7 +59,7 @@ class Application
 
 	private function showErrors () {
 
-		switch($this->config['mode']) {
+		switch(Service::get('config')->get('mode')) {
 			case 'dev':
 				ini_set('display_errors', 1);
 				ini_set('display_startup_errors', 1);
@@ -89,7 +87,7 @@ class Application
 		Logger::getInstance()->error($message . "\r\n" . $trace);
 
 		return new Response(Service::get('render')
-			->render($this->config['error_500'], [
+			->render(Service::get('config')->get('error_500'), [
 				'message' => $message,
 				'code' => $code
 		], true), $code);
@@ -130,8 +128,9 @@ class Application
 			$this->appError($e->getMessage(), 404);
 
 		} catch (\Exception $e) {
-
-			$this->appError($e->getMessage(), $e->getCode(), $e->getTraceAsString());
+			var_dump(\Framework\Database\PDOConnector::getLastQuery());
+var_dump($e->getMessage());
+			//$this->appError($e->getMessage(), $e->getCode(), $e->getTraceAsString());
 
 		}
 
@@ -160,14 +159,14 @@ class Application
 	private function createServices () {
 
 		Service::set('request', new Request());
-		Service::set('db', PDOConnector::getInstance($this->config['pdo']));
+		Service::set('db', PDOConnector::getInstance(Service::get('config')->get('pdo')));
 		Service::set('session', new Session());
 		Service::set('security', new Security(
-			$this->config['security']['login_route'],
-			$this->config['security']['user_class']
+			Service::get('config')->get('security.login_route'),
+			Service::get('config')->get('security.user_class')
 		));
-		Service::set('router', new Router($this->config['routes']));
-		Service::set('render', new Render($this->config['main_layout']));
+		Service::set('router', new Router(Service::get('config')->get('routes')));
+		Service::set('render', new Render(Service::get('config')->get('main_layout')));
 
 	}
 
