@@ -128,9 +128,8 @@ class Application
 			$this->appError($e->getMessage(), 404);
 
 		} catch (\Exception $e) {
-			var_dump(\Framework\Database\PDOConnector::getLastQuery());
-var_dump($e->getMessage());
-			//$this->appError($e->getMessage(), $e->getCode(), $e->getTraceAsString());
+
+			$this->appError($e->getMessage(), $e->getCode(), $e->getTraceAsString());
 
 		}
 
