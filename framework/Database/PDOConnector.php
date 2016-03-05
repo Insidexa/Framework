@@ -354,17 +354,14 @@ class PDOConnector {
 
 		$columnsSql = '';
 
-		if (!empty($this->columns)) {
+		switch ($this->columns) {
+			case is_string($this->columns):
+				$columnsSql = ' ' . $this->columns;
+				break;
 
-			switch ($this->columns) {
-				case is_string($this->columns):
-					$columnsSql .= ' ' . '*';
-					break;
-
-				case is_array($this->columns):
-					$columnsSql .= ' `' . implode('`, `', $this->columns) . '`';
-					break;
-			}
+			case is_array($this->columns):
+				$columnsSql = ' `' . implode('`, `', $this->columns) . '`';
+				break;
 		}
 
 		return $columnsSql;

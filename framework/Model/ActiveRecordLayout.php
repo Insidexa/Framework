@@ -144,7 +144,7 @@ class ActiveRecordLayout extends PDOConnector {
 		switch ($type) {
 			case 'integer':
 				$this->metaData = 'one';
-				return $this->selectDB()
+				return $this->select('*')
 					->where(['id' => $data])->get();
 				break;
 			case 'string' && $data === 'all':
