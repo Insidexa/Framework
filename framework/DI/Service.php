@@ -85,7 +85,7 @@ class Service {
 	 * @param object $value
 	 */
 	public function __set($name, $value) {
-		self::$services[ $name ] = $value;
+		self::set($name, $value);
 	}
 
 }
