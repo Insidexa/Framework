@@ -30,8 +30,4 @@ class XmlResponse extends Response {
 
 	}
 
-	public function sendBody() {
-		echo $this->content;
-	}
-
 }
