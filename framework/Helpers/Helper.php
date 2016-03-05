@@ -85,4 +85,31 @@ class Helper {
 
 	}
 
+	/**
+	 * @param string $pathKey
+	 * @param array $array
+	 *
+	 * @return null
+	 */
+	public static function arrayGet ($array, $pathKey) {
+
+		if (!$pathKey) {
+			return null;
+		}
+
+		$segments = is_array($pathKey) ? $pathKey : explode('.', $pathKey);
+		$currentArray = &$array;
+
+		foreach ($segments as $segment) {
+			if (!array_key_exists($segment, $currentArray)) {
+				return null;
+			}
+
+			$currentArray = $currentArray[$segment];
+		}
+
+		return $currentArray;
+
+	}
+
 }
