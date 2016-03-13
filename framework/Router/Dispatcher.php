@@ -8,7 +8,9 @@
  */
 
 namespace Framework\Router;
+use Framework\DI\DependencyInjection;
 use Framework\Exception\ClassNotFound;
+use Framework\Response\Response;
 
 /**
  * Class Dispatcher
@@ -33,19 +35,21 @@ class Dispatcher {
 			throw new ClassNotFound('Class ' . $controller . ' not found', 500);
 		}
 
-		$controllerObj = new $controller;
-
-		if (!method_exists($controllerObj, $methodName)) {
+		if (!method_exists($controller, $methodName)) {
 			throw new \BadMethodCallException('Method ' . $methodName . ' not found in ' . $controller, 500);
 		}
+
+		$di = new DependencyInjection($controller, $methodName, $arguments);
+		$controllerObj = $di->getController();
+		$reservedArguments = $di->getArguments();
 
 		$reflectionMethod = new \ReflectionMethod($controller, $methodName);
 
 		if (gettype($arguments) === 'array')
-			$response = $reflectionMethod->invokeArgs($controllerObj, $arguments);
+			$response = $reflectionMethod->invokeArgs($controllerObj, $reservedArguments);
 
 		if (gettype($arguments) === 'string')
-			$response = $reflectionMethod->invoke($controllerObj, $arguments);
+			$response = $reflectionMethod->invoke($controllerObj, $reservedArguments);
 
 		return $response;
 
