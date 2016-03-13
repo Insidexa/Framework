@@ -16,6 +16,7 @@ use Framework\Response\ResponseRedirect;
 
 /**
  * Class Controller
+ * Base Controller
  *
  * @package Framework\Controller
  *

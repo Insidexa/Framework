@@ -1,27 +1,29 @@
 <?php
 
 namespace Framework\Router;
+
 use Framework\DI\Service;
 
 /**
  * Class Router
+ * Manipulation url
  *
  * @package Framework\Router
  */
 class Router {
 
-	private $segments = array();
+	private $segments = [];
 
-	private $config = array();
+	private $config = [];
 
 	private $buildUrl = '';
 
-	protected $controllerName        = '';
-	protected $actionName            = '';
-	protected $method                = '';
-	protected $urlParams             = '';
+	protected $controllerName = '';
+	protected $actionName = '';
+	protected $method = '';
+	protected $urlParams = '';
 	protected $defaultControllerName = 'Application';
-	protected $defaultActionName     = 'notFound';
+	protected $defaultActionName = 'notFound';
 
 	private $urlScheme;
 	private $urlHost;
@@ -35,6 +37,9 @@ class Router {
 
 	/**
 	 * Router constructor.
+	 * Change config
+	 * Run life cycle router
+	 * Parse url on segments
 	 *
 	 * @param $config
 	 */
@@ -54,6 +59,8 @@ class Router {
 	}
 
 	/**
+	 * Change segments and return count if segments
+	 *
 	 * @return int
 	 */
 	public function getSegments() {
@@ -72,6 +79,8 @@ class Router {
 	}
 
 	/**
+	 * Return current full url
+	 *
 	 * @return string
 	 */
 	public function getFullUrl() {
@@ -79,26 +88,8 @@ class Router {
 	}
 
 	/**
-	 * @param      $name
-	 * @param null $class
+	 * Return scheme http or https
 	 *
-	 * @return bool
-	 */
-	protected function checkPublicProperty($name, $class = NULL) {
-		$class = $class ?: $this;
-		$reflection = new \ReflectionObject($class);
-		$properties = $reflection->getProperties(\ReflectionProperty::IS_PUBLIC);
-
-		foreach ($properties as $_nextPropertyInfo) {
-			if ($_nextPropertyInfo->name === $name) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getScheme() {
@@ -107,6 +98,8 @@ class Router {
 	}
 
 	/**
+	 * Return a string with the scheme, url and port
+	 *
 	 * @return string
 	 */
 	public function getHostName() {
@@ -121,7 +114,7 @@ class Router {
 	}
 
 	/**
-	 *
+	 * Run parsing url and change scheme, method
 	 */
 	public function run() {
 		$this->urlScheme = Service::get('request')->getScheme();
@@ -187,17 +180,19 @@ class Router {
 	}
 
 	/**
+	 * Create url for name route with arguments
+	 *
 	 * @param       $routeName
 	 * @param array $params
 	 *
 	 * @return mixed|string
 	 */
-	public function buildRoute ($routeName, array $params = []) {
+	public function buildRoute($routeName, array $params = []) {
 
 		if (array_key_exists($routeName, $this->config)) {
-			$this->buildUrl = $this->config[$routeName]['pattern'];
+			$this->buildUrl = $this->config[ $routeName ]['pattern'];
 
-			if(count($params) > 0) {
+			if (count($params) > 0) {
 				foreach ($params as $key => $value) {
 					$this->buildUrl = str_replace("{{$key}}", $value, $this->buildUrl);
 				}
@@ -213,6 +208,8 @@ class Router {
 	}
 
 	/**
+	 * Set controller, method, arguments method
+	 *
 	 * @param       $name
 	 * @param       $action
 	 * @param array $params
@@ -224,6 +221,8 @@ class Router {
 	}
 
 	/**
+	 * Set url params
+	 *
 	 * @param      $params
 	 * @param bool $notReturn
 	 *
@@ -241,25 +240,27 @@ class Router {
 			return $params;
 		}
 
-		for($i = 0; $i < $countParams; $i++ ) {
-			$key = $params[$i++];
-			$this->urlParams[$key] = $params[$i];
+		for ($i = 0; $i < $countParams; $i++) {
+			$key = $params[ $i++ ];
+			$this->urlParams[ $key ] = $params[ $i ];
 		}
 
 		return $this->urlParams;
 	}
 
 	/**
+	 * Return current name route
+	 *
 	 * @return string
 	 */
-	public function getNameRoute () {
+	public function getNameRoute() {
 
 		return $this->nameRoute;
 
 	}
 
 	/**
-	 *
+	 * Compares parsed segments from config routes
 	 */
 	protected function getRouteFromConfig() {
 		foreach ($this->config as $nameRoute => $_next) {
@@ -270,24 +271,23 @@ class Router {
 				if ($this->controllerName === $this->defaultControllerName) {
 					$this->setMap($nameRoute, $_next);
 				}
-			} else if ($patterExplode[0] === $this->controllerName) {
+			} else if ($patterExplode[0] === $this->controllerName && count($this->segments) === count($patterExplode)) {
 
-				if (count($this->segments) === count($patterExplode)) {
-					$requirement = array_key_exists('_requirements', $_next) ? $_next['_requirements'] : array('_method' => $this->method);
-					$pattern = '/' . str_replace('/', '\\/', $_next['pattern']) . '/i';
-					if ($requirement) {
+				$requirement = array_key_exists('_requirements', $_next) ? $_next['_requirements'] : ['_method' => $this->method];
+				$pattern = '/' . str_replace('/', '\\/', $_next['pattern']) . '/i';
+				// isset requirements
+				if ($requirement) {
 
-						foreach ($requirement as $_nextRule => $_valueRule) {
-							$pattern = str_replace('{' . $_nextRule . '}', $_valueRule, $pattern);
-						}
+					foreach ($requirement as $_nextRule => $_valueRule) {
+						$pattern = str_replace('{' . $_nextRule . '}', $_valueRule, $pattern);
+					}
 
-						if (array_key_exists('_method', $requirement) && (strtolower($requirement['_method']) !== strtolower($this->method))) {
-							continue;
-						} else if (preg_match($pattern, '/' . implode('/', $this->segments))) {
+					if (array_key_exists('_method', $requirement) && (strtolower($requirement['_method']) !== strtolower($this->method))) {
+						continue;
+					} else if (preg_match($pattern, '/' . implode('/', $this->segments))) {
 
-							$this->parseRequirements($nameRoute, $_next);
+						$this->parseRequirements($nameRoute, $_next);
 
-						}
 					}
 				}
 			}
@@ -295,10 +295,12 @@ class Router {
 	}
 
 	/**
+	 * Change to the appropriate controller card for this route
+	 *
 	 * @param $nameRoute
 	 * @param $_next
 	 */
-	private function setMap ($nameRoute, $_next) {
+	private function setMap($nameRoute, $_next) {
 		$this->nameRoute = $nameRoute;
 		$this->controllerName = $_next['controller'];
 		$this->actionName = $_next['action'];
@@ -309,10 +311,10 @@ class Router {
 	 * @param $nameRoute
 	 * @param $_next
 	 */
-	private function parseRequirements ($nameRoute, $_next) {
+	private function parseRequirements($nameRoute, $_next) {
 		$this->setMap($nameRoute, $_next);
 
-		$newSegment = array();
+		$newSegment = [];
 
 		foreach ($this->segments as $key => $_nextSegmentValue) {
 			if (!$key) {
@@ -325,7 +327,7 @@ class Router {
 
 		if (count($newSegment)) {
 			if ((int)$newSegment[0] > 0) {
-				$newSegment = array_merge(array('id' => $newSegment[0]),
+				$newSegment = array_merge(['id' => $newSegment[0]],
 					$this->parseParams(array_slice($newSegment, 1), true));
 			}
 
@@ -334,24 +336,28 @@ class Router {
 	}
 
 	/**
+	 * Return param for name key
+	 *
 	 * @param $name
 	 * @param $default
 	 *
 	 * @return mixed
 	 */
 	public function getParam($name, $default) {
-		return array_key_exists($name, $this->urlParams) ?? $this->urlParams[$name] = $default;
+		return array_key_exists($name, $this->urlParams) ?? $this->urlParams[ $name ] = $default;
 	}
 
 	/**
+	 * Return array with name controller, method, arguments and permissions for security
+	 *
 	 * @return array
 	 */
-	public function getMap () {
+	public function getMap() {
 		return [
 			'controller' => (!empty($this->controllerName)) ? $this->controllerName : $this->defaultControllerName,
-			'method' => (!empty($this->actionName)) ? $this->actionName : $this->defaultActionName,
-			'params' => $this->urlParams,
-			'security' => $this->security
+			'method'     => (!empty($this->actionName)) ? $this->actionName : $this->defaultActionName,
+			'params'     => $this->urlParams,
+			'security'   => $this->security,
 		];
 	}
 

@@ -48,7 +48,7 @@ class Validator
 	}
 
 	/**
-	 *
+	 * Check all properties
 	 */
 	private function check () {
 
@@ -72,6 +72,8 @@ class Validator
 	}
 
 	/**
+	 * Return errors
+	 *
 	 * @return array
 	 */
 	public function getErrors () {
@@ -79,6 +81,8 @@ class Validator
 	}
 
 	/**
+	 * Check exists errors and return true if exists
+	 *
 	 * @return bool
 	 */
 	public function isValid () {

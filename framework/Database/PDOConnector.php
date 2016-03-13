@@ -12,6 +12,7 @@ use Framework\Exception\DatabaseException;
 
 /**
  * Class PDOConnector
+ * Constructor queries
  *
  * @package Framework\Database
  *
@@ -95,6 +96,9 @@ class PDOConnector {
 	protected $type = '';
 
 	/**
+	 * Return the same object
+	 * Singleton
+	 *
 	 * @param array $config
 	 *
 	 * @return \PDO
@@ -123,6 +127,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Add column on array
+	 *
 	 * @param $column
 	 *
 	 * @return $this
@@ -136,6 +142,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Add conditions to array
+	 *
 	 * @param array $params
 	 *
 	 * @return $this
@@ -149,6 +157,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Set type query to select
+	 *
 	 * @return $this
 	 */
 	protected function selectDB() {
@@ -159,6 +169,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Set type query to update
+	 *
 	 * @return $this
 	 */
 	protected function updateDB() {
@@ -169,6 +181,7 @@ class PDOConnector {
 	}
 
 	/**
+	 * Set type query to insert record
 	 *
 	 * @return $this
 	 */
@@ -178,6 +191,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Set type query to delete record
+	 *
 	 * @return $this
 	 */
 	protected function deleteDB() {
@@ -187,6 +202,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Add order conditions to array
+	 *
 	 * @param array $param
 	 *
 	 * @return $this
@@ -199,6 +216,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Change the limit of delivery of results
+	 *
 	 * @param $from
 	 * @param $to
 	 *
@@ -214,6 +233,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Collects a complete request by type
+	 *
 	 * @return null
 	 * @throws DatabaseException
 	 */
@@ -274,11 +295,16 @@ class PDOConnector {
 
 	}
 
+	/**
+	 * Ends string query
+	 */
 	private function queryEnd() {
 		$this->currentSql .= ';';
 	}
 
 	/**
+	 * Parse insert arguments to string query
+	 *
 	 * @param array $params
 	 */
 	protected function insertValues(array $params = []) {
@@ -303,6 +329,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Parse limit data to string
+	 *
 	 * @return string
 	 */
 	private function getStringLimit() {
@@ -317,6 +345,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Set update data
+	 *
 	 * @param array $params
 	 */
 	protected function setUpdateValues(array $params = []) {
@@ -329,6 +359,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Parse update data to string query
+	 *
 	 * @return string
 	 */
 	private function getStringUpdate() {
@@ -348,6 +380,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Parse columns to string query
+	 *
 	 * @return mixed
 	 */
 	private function getStringColumns() {
@@ -368,6 +402,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Parse where conditions to string query
+	 *
 	 * @return string
 	 */
 	private function getStringWhere() {
@@ -387,6 +423,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Parse order conditions to string query
+	 *
 	 * @return string
 	 */
 	private function getStringOrderBy() {
@@ -405,7 +443,10 @@ class PDOConnector {
 	}
 
 	/**
-	 * @return null
+	 * Run query
+	 * clear data after query
+	 *
+	 * @return object|integer
 	 * @throws DatabaseException
 	 */
 	protected function execute() {
@@ -434,6 +475,9 @@ class PDOConnector {
 		}
 	}
 
+	/**
+	 * Cleared data for query
+	 */
 	private function clear() {
 
 		$this->where = [];
@@ -447,6 +491,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Return string last query
+	 *
 	 * @return null
 	 */
 	public static function getLastQuery() {
@@ -454,12 +500,17 @@ class PDOConnector {
 	}
 
 	/**
+	 * Set model
+	 *
 	 * @param $model
 	 */
 	protected function setModel($model) {
 		$this->model = $model;
 	}
 
+	/**
+	 * Close connection
+	 */
 	protected function closeConnection() {
 		self::$instance = null;
 	}

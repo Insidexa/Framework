@@ -11,6 +11,7 @@ namespace Framework\Response;
 
 /**
  * Class XmlResponse
+ * Send xml
  *
  * @package Framework\Response
  */

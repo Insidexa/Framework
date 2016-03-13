@@ -10,6 +10,7 @@ namespace Framework\Response;
 
 /**
  * Class ResponseRedirect
+ * Send redirect to url
  *
  * @package Framework\Response
  */

@@ -10,6 +10,7 @@ namespace Framework\Model;
 
 /**
  * Class ActiveRecord
+ * Record as an object management
  *
  * @package Framework\Model
  *
@@ -51,6 +52,9 @@ class ActiveRecord {
 	private static $pullModels = [];
 
 	/**
+	 * We need to call the static methods
+	 * I like how it is done in laravel
+	 *
 	 * @param $name
 	 * @param $arguments
 	 *
@@ -79,6 +83,8 @@ class ActiveRecord {
 	}
 
 	/**
+	 * The same thing, only it is necessary to create an object
+	 *
 	 * @param $name
 	 * @param $arguments
 	 *
@@ -92,6 +98,8 @@ class ActiveRecord {
 	}
 
 	/**
+	 * Call method in ActiveRecordLayout without or with arguments
+	 *
 	 * @param $name
 	 * @param $arguments
 	 *

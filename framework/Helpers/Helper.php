@@ -20,6 +20,8 @@ use Framework\Router\Dispatcher;
 class Helper {
 
 	/**
+	 * Return full path to view  with name bundle, name folder and view name
+	 *
 	 * @param $nameBundle
 	 * @param $nameFolder
 	 * @param $viewName
@@ -33,6 +35,8 @@ class Helper {
 	}
 
 	/**
+	 * Return name folder for view and name bundle
+	 *
 	 * @param $dataClass
 	 *
 	 * @return array
@@ -51,6 +55,8 @@ class Helper {
 	}
 
 	/**
+	 * Return closure which creates input with token for POST request
+	 *
 	 * @return \Closure
 	 */
 	public static function getTokenField() {
@@ -64,6 +70,8 @@ class Helper {
 	}
 
 	/**
+	 * Return closure which call Dispatcher and insert response in template
+	 *
 	 * @return \Closure
 	 */
 	public static function include () {
@@ -75,6 +83,8 @@ class Helper {
 	}
 
 	/**
+	 * Return closure which generate url from config with or without arguments
+	 *
 	 * @return \Closure
 	 */
 	public static function buildRoute () {
@@ -86,6 +96,10 @@ class Helper {
 	}
 
 	/**
+	 * Return value from array
+	 * Search path keys in array
+	 * Like Laravel
+	 *
 	 * @param string $pathKey
 	 * @param array $array
 	 *

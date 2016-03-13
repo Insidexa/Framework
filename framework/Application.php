@@ -37,6 +37,7 @@ class Application
 
 	/**
 	 * Application constructor.
+	 * Manipulation configurations Application
 	 *
 	 * @param $config
 	 *
@@ -57,6 +58,9 @@ class Application
 
 	}
 
+	/**
+	 * Show or hide error depending from config mode
+	 */
 	private function showErrors () {
 
 		switch(Service::get('config')->get('mode')) {
@@ -76,6 +80,8 @@ class Application
 	}
 
 	/**
+	 * Return response error
+	 *
 	 * @param     $message
 	 * @param int $code
 	 * @param string $trace
@@ -95,6 +101,9 @@ class Application
 	}
 
 	/**
+	 * Manages the application lifecycle.
+	 * It creates services, and manages the security checks the token returns a response
+	 *
 	 * @throws \Exception
 	 */
 	public function run () {
@@ -136,6 +145,8 @@ class Application
 	}
 
 	/**
+	 * Return response if valid
+	 *
 	 * @param $response
 	 *
 	 * @throws BadResponseTypeException
@@ -153,6 +164,8 @@ class Application
 	}
 
 	/**
+	 * Create services
+	 *
 	 * @throws Exception\DatabaseException
 	 */
 	private function createServices () {

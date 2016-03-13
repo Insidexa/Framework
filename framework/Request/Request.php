@@ -11,6 +11,7 @@ namespace Framework\Request;
 
 /**
  * Class Request
+ * Manipulation of form data
  *
  * @author Jashka
  *
@@ -85,6 +86,8 @@ class Request {
 	}
 
 	/**
+	 * Return GET input data for name key
+	 *
 	 * @param $nameKey
 	 *
 	 * @return string
@@ -96,6 +99,8 @@ class Request {
 	}
 
 	/**
+	 * Return POST input data for name key
+	 *
 	 * @param $nameKey
 	 *
 	 * @return string
@@ -107,6 +112,8 @@ class Request {
 	}
 
 	/**
+	 * Return code from header
+	 *
 	 * @return int|null
 	 */
 	public function getCode() {
@@ -114,6 +121,8 @@ class Request {
 	}
 
 	/**
+	 * Return true if POST request
+	 *
 	 * @return bool
 	 */
 	public function isPost() {
@@ -121,6 +130,8 @@ class Request {
 	}
 
 	/**
+	 * Return true if GET request
+	 *
 	 * @return bool
 	 */
 	public function isGet() {
@@ -128,6 +139,8 @@ class Request {
 	}
 
 	/**
+	 * Return true if PUT request
+	 *
 	 * @return bool
 	 */
 	public function isPut() {
@@ -135,6 +148,8 @@ class Request {
 	}
 
 	/**
+	 * Return true if ajax request from client
+	 *
 	 * @return bool
 	 */
 	public function isAjax () {
@@ -146,6 +161,8 @@ class Request {
 	}
 
 	/**
+	 * Return current url with scheme
+	 *
 	 * @return string
 	 */
 	public function getUrl () {
@@ -153,6 +170,8 @@ class Request {
 	}
 
 	/**
+	 * Return type method
+	 *
 	 * @return null
 	 */
 	public function getMethod () {
@@ -174,6 +193,8 @@ class Request {
 	}
 
 	/**
+	 * Return cleared input data without
+	 *
 	 * @param $data
 	 *
 	 * @return mixed

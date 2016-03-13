@@ -10,6 +10,7 @@ namespace Framework\Response;
 
 /**
  * Class JsonResponse
+ * Send json answer client
  *
  * @package Framework\Response
  */

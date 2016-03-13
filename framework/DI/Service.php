@@ -12,6 +12,7 @@ use Framework\Exception\ServiceNotFoundException;
 
 /**
  * Class Service
+ * Service Locator for objects
  *
  * @package Framework\DI
  */

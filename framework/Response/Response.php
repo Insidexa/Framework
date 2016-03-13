@@ -10,6 +10,7 @@ namespace Framework\Response;
 
 /**
  * Class Response
+ * Answer client
  *
  * @package Framework\Response
  */
@@ -35,6 +36,7 @@ class Response
 
 	/**
 	 * Response constructor.
+	 * Set content and code
 	 *
 	 * @param $content
 	 * @param $code
@@ -49,6 +51,8 @@ class Response
 	}
 
 	/**
+	 * Add header
+	 *
 	 * @param $name
 	 * @param $value
 	 */
@@ -58,6 +62,9 @@ class Response
 
 	}
 
+	/**
+	 * Set header for answer
+	 */
 	protected function sendHeader () {
 		header($_SERVER['SERVER_PROTOCOL'] . ' ' . $this->code);
 		foreach($this->headers as $key => $value) {
@@ -65,12 +72,15 @@ class Response
 		}
 	}
 
+	/**
+	 * Send answer client
+	 */
 	protected function sendBody () {
 		echo $this->content;
 	}
 
 	/**
-	 *
+	 * Send header and body
 	 */
 	public function send () {
 

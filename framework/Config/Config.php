@@ -14,6 +14,7 @@ use \Exception;
 
 /**
  * Class Config
+ * Config manipulation Application
  *
  * @package Framework\Config
  */

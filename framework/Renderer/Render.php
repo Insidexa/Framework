@@ -15,6 +15,7 @@ use Framework\Helpers\Helper;
 
 /**
  * Class Render
+ * Render template
  *
  * @package Framework\Renderer
  */
@@ -29,6 +30,7 @@ class Render {
 
 	/**
 	 * Render constructor.
+	 * Set main layout
 	 *
 	 * @param $mainLayout
 	 */
@@ -39,6 +41,8 @@ class Render {
 	}
 
 	/**
+	 * Return content with main layout if passed argument 'true' or without
+	 *
 	 * @param      $pathView
 	 * @param null $data
 	 * @param boolean $withMain
@@ -67,6 +71,10 @@ class Render {
 	}
 
 	/**
+	 * Include template, extract variables for template
+	 * initialize closures
+	 * return rendered content
+	 *
 	 * @param               $pathView
 	 * @param null|array    $data
 	 *

@@ -13,17 +13,25 @@ use Framework\Exception\AuthLoginException;
 use Framework\Response\ResponseRedirect;
 
 /**
- * Class Security
+ * Class Security for manipulation autorize,
+ * token form and permissions users
  *
  * @package Framework\Security
  */
 class Security {
 
+	/**
+	 * Login url is redirect if user not autorize
+	 *
+	 * @var string
+	 */
 	private $loginUrl;
 
 	private $model;
 
 	/**
+	 * Change login url, model user
+	 *
 	 * Security constructor.
 	 *
 	 * @param $url
@@ -41,6 +49,9 @@ class Security {
 	}
 
 	/**
+	 * Check all user rights with the rights of the current action
+	 * If the user does not have the right to act, it will be actuated Exception
+	 *
 	 * @param $role
 	 *
 	 * @throws \Exception
@@ -63,6 +74,9 @@ class Security {
 	}
 
 	/**
+	 * Return token if exists
+	 * Otherwise create new token
+	 *
 	 * @return string
 	 */
 	public function getToken () {
@@ -74,6 +88,8 @@ class Security {
 	}
 
 	/**
+	 * Generate new token
+	 *
 	 * @return mixed
 	 */
 	private function newToken () {
@@ -83,6 +99,8 @@ class Security {
 	}
 
 	/**
+	 * Checking user authorization
+	 *
 	 * @return bool
 	 */
 	public function isAuthenticated () {
@@ -99,6 +117,8 @@ class Security {
 	}
 
 	/**
+	 * Create user class
+	 *
 	 * @param $model
 	 */
 	public function setUser ($model) {
@@ -114,6 +134,8 @@ class Security {
 	}
 
 	/**
+	 * Return user model
+	 *
 	 * @return null|object
 	 */
 	public function getUser () {
@@ -128,7 +150,9 @@ class Security {
 
 	}
 
-
+	/**
+	 * Delete all data is session
+	 */
 	public function clear () {
 
 		Service::get('session')->destroy();

@@ -14,6 +14,8 @@ use Framework\Exception\DatabaseException;
 
 /**
  * Class ActiveRecord
+ * Basic techniques for working with data as an object.
+ * Layer over PDOConnector
  *
  * @package Framework\Database
  *
@@ -61,6 +63,8 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 * Need for select data the fields, as method not declared for fields
+	 *
 	 * @param $name
 	 * @param $arguments
 	 *
@@ -83,6 +87,9 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 * Find column for find by field
+	 * return true if find
+	 *
 	 * @param $columnName
 	 *
 	 * @return bool
@@ -90,8 +97,8 @@ class ActiveRecordLayout extends PDOConnector {
 	private function findColumn($columnName) {
 
 		foreach ($this->dataModel as $key => $value) {
-			if ($columnName === 'id') return true;
-			if ($key === $columnName) return true;
+			if ($columnName === 'id' || $key === $columnName) return true;
+//			if () return true;
 		}
 
 		return false;
@@ -99,6 +106,8 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 * Create new record
+	 *
 	 * @return null
 	 * @throws DatabaseException
 	 */
@@ -114,6 +123,8 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 * Get all public fields from model
+	 *
 	 * @return array
 	 */
 	private function getPropertiesAndValuesChildClass() {
@@ -131,6 +142,8 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 * Return object for id or all records
+	 *
 	 * @param $data
 	 *
 	 * @throws \InvalidArgumentException
@@ -158,6 +171,8 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 * Update record for fields
+	 *
 	 * @param array $params
 	 *
 	 * @return array|bool|null
@@ -176,6 +191,8 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 * Select all data with columns
+	 *
 	 * @param array | string $columns
 	 *
 	 * @return $this
@@ -189,6 +206,8 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 * Set type query
+	 *
 	 * @return array|bool|null
 	 */
 	public function delete() {
@@ -202,6 +221,8 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 * Run query and return object or bool value
+	 *
 	 * @return array|bool|null
 	 * @throws DatabaseException
 	 */
@@ -226,6 +247,8 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 * Add conditions for query
+	 *
 	 * @param array $param
 	 *
 	 * @return $this
@@ -239,6 +262,8 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 * Add type sorting for field
+	 *
 	 * @param array $param
 	 *
 	 * @return $this
@@ -252,6 +277,7 @@ class ActiveRecordLayout extends PDOConnector {
 	}
 
 	/**
+	 *
 	 * @return array
 	 */
 	public function get() {

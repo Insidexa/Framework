@@ -18,10 +18,14 @@ namespace Framework\Session;
  */
 class Session {
 
+	/**
+	 * @var string
+	 */
 	public $returnUrl = '';
 
 	/**
 	 * Session constructor.
+	 * Create session and change referer
 	 */
 	public function __construct () {
 
@@ -35,6 +39,9 @@ class Session {
 
 	}
 
+	/**
+	 * Delete session
+	 */
 	public function destroy () {
 
 		session_unset();
@@ -43,6 +50,8 @@ class Session {
 	}
 
 	/**
+	 * Get value session by name key
+	 *
 	 * @param $name
 	 *
 	 * @return bool
@@ -54,6 +63,8 @@ class Session {
 	}
 
 	/**
+	 * Delete session data by name key
+	 *
 	 * @param $name
 	 */
 	public function delete ($name) {
@@ -65,6 +76,8 @@ class Session {
 	}
 
 	/**
+	 * Return all session data
+	 *
 	 * @return mixed
 	 */
 	public function all () {
@@ -74,6 +87,8 @@ class Session {
 	}
 
 	/**
+	 * Create or change new data in session
+	 *
 	 * @param $name
 	 * @param $value
 	 */
@@ -98,6 +113,8 @@ class Session {
 	}
 
 	/**
+	 * Return all flush messages
+	 *
 	 * @return array|bool
 	 */
 	public function getFlushMessages () {
@@ -107,6 +124,8 @@ class Session {
 	}
 
 	/**
+	 * Add new flush message
+	 *
 	 * @param $message
 	 * @param $type
 	 */
