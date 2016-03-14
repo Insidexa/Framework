@@ -21,7 +21,7 @@ use Framework\Exception\DatabaseException;
 class PDOConnector {
 
 	/**
-	 * @var null
+	 * @var \PDO
 	 */
 	private static $instance;
 
@@ -246,15 +246,15 @@ class PDOConnector {
 				$this->currentSql .= $this->getStringColumns();
 				$this->currentSql .= ' FROM ' . $this->_table;
 
-				if (!empty($this->where)) {
+				if (count($this->where) !== 0) {
 					$this->currentSql .= $this->getStringWhere();
 				}
 
-				if (!empty($this->orderBy)) {
+				if (count($this->orderBy) !== 0) {
 					$this->currentSql .= $this->getStringOrderBy();
 				}
 
-				if (!empty($this->limit)) {
+				if (count($this->limit) !== 0) {
 					$this->currentSql .= $this->getStringLimit();
 				}
 
@@ -351,7 +351,7 @@ class PDOConnector {
 	 */
 	protected function setUpdateValues(array $params = []) {
 
-		if (!empty($params)) {
+		if (count($params) !== 0) {
 			$this->update = $params;
 			$this->bindings = array_merge($params, $this->bindings);
 		}
