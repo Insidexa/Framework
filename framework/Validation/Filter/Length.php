@@ -13,7 +13,7 @@ namespace Framework\Validation\Filter;
  *
  * @package Framework\Validation\Filter
  */
-class Length
+class Length implements FilterInterface
 {
 	/**
 	 * @var string
