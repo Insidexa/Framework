@@ -45,11 +45,22 @@ class Dispatcher {
 
 		$reflectionMethod = new \ReflectionMethod($controller, $methodName);
 
-		if (gettype($arguments) === 'array')
-			$response = $reflectionMethod->invokeArgs($controllerObj, $reservedArguments);
+		$typeArguments = gettype($reservedArguments);
 
-		if (gettype($arguments) === 'string')
-			$response = $reflectionMethod->invoke($controllerObj, $reservedArguments);
+		switch ($typeArguments) {
+			case 'array':
+				$response = $reflectionMethod->invokeArgs($controllerObj, $reservedArguments);
+				break;
+
+			case 'string':
+				$response = $reflectionMethod->invoke($controllerObj, $reservedArguments);
+				break;
+
+			default:
+				throw new \InvalidArgumentException('Bad type passsed arguments');
+				break;
+		}
+
 
 		return $response;
 
