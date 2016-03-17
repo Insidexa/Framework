@@ -514,7 +514,7 @@ class PDOConnector {
 	/**
 	 * Close connection
 	 */
-	protected function closeConnection() {
+	public static function closeConnection() {
 		self::$instance = null;
 	}
 
