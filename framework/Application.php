@@ -140,8 +140,6 @@ class Application
 
 			$this->appError($e->getMessage(), $e->getCode(), $e->getTraceAsString());
 
-		} finally {
-			\Framework\Database\PDOConnector::closeConnection();
 		}
 
 	}
