@@ -10,6 +10,6 @@
 namespace Framework\Exception;
 
 
-class ClassNotFound extends \Exception{
+class ClassNotFound extends \Framework\Exception\BaseException {
 
 }

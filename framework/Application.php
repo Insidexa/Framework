@@ -138,7 +138,7 @@ class Application
 
 		} catch (\Exception $e) {
 
-			$this->appError($e->getMessage(), 500, $e->getTraceAsString());
+			$this->appError($e->getMessage(), $e->getCode(), $e->getTraceAsString());
 
 		}
 
