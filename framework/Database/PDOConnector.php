@@ -461,13 +461,16 @@ class PDOConnector {
 
 			$result = $this->statement->execute($this->bindings);
 
+			$this->clear();
+
 			if ($this->type === 'update'
 				|| $this->type === 'insert'
 				|| $this->type === 'delete') {
+
+				$this->type = '';
+
 				return $result;
 			}
-
-			$this->clear();
 
 			return $this->statement;
 		} catch (\PDOException $e) {
