@@ -36,23 +36,30 @@ class ProfileController extends Controller {
 
 	public function updateAction () {
 
-		$error = [];
+		$errors = [];
+		$userId = (int)$this->getRequest()->post('id');
 
 		try {
 			User::where([
-				'id' => (int)$this->getRequest()->post('id')
+				'id' => $userId
 			])->update([
 				'email' => $this->getRequest()->post('email'),
 				'password' => $this->getRequest()->post('password')
 			]);
 		} catch(DatabaseException $e) {
-			$error[] = $e->getMessage();
+			$errors[] = $e->getMessage();
 		}
 
-		// Мне логично после апдейта юзера его разлогинивать
-		Service::get('security')->clear();
+		$userId = Service::get('security')->getUser()->id;
+		$user = User::find((int)$userId);
 
-		return $this->redirect($this->generateRoute('login'), $error);
+		Service::get('security')->setUser($user);
+
+		return $this->render('profile.html', [
+			'user' => $user,
+			'action' => $this->generateRoute('update_profile'),
+			'errors' => isset($errors) ? $errors : null
+		]);
 
 	}
 
