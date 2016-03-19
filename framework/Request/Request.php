@@ -11,13 +11,13 @@ namespace Framework\Request;
 
 /**
  * Class Request
- * Manipulation of form data
+ * Manipulation of url, form data
  *
  * @author Jashka
  *
  * @package Framework\Request
  */
-class Request {
+class Request implements RequestInterface {
 
 	/**
 	 * @var array
@@ -47,11 +47,6 @@ class Request {
 	/**
 	 * @var null
 	 */
-	private $timeRequest = null;
-
-	/**
-	 * @var null
-	 */
 	private $clientIp = null;
 
 	/**
@@ -60,14 +55,9 @@ class Request {
 	private $scheme = null;
 
 	/**
-	 * @var null
+	 * @var array
 	 */
-	private $host = null;
-
-	/**
-	 * @var null
-	 */
-	private $uri = null;
+	private $headers = [];
 
 	/**
 	 * Request constructor.
@@ -79,10 +69,12 @@ class Request {
 		$this->code = http_response_code();
 		$this->clientIp = $_SERVER['SERVER_ADDR'];
 		$this->method = $_SERVER['REQUEST_METHOD'];
-		$this->timeRequest = $_SERVER['REQUEST_TIME'];
-		$this->scheme = (isset($_SERVER['HTTPS'])) ?? 'http';
-		$this->host = $_SERVER['HTTP_HOST'];
-		$this->uri = $_SERVER['REQUEST_URI'];
+		$this->headers = $this->parseHeaders(headers_list());
+	}
+
+	// TODO: add class for upload file and implement psr7 UploadedFileInterface
+	public function getFile ($name) {
+		return $this->files[$name];
 	}
 
 	/**
@@ -95,7 +87,75 @@ class Request {
 	public function get($nameKey) {
 		return array_key_exists($nameKey, $this->get)
 			? $this->filterRequest($this->get[ $nameKey ])
-			: 'NULL';
+			: null;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClientAddr () {
+		return $this->clientIp;
+	}
+
+	/**
+	 * Return current url with scheme
+	 *
+	 * @return string
+	 */
+	public function getUrl () {
+		return $this->scheme . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return null
+	 */
+	public function getHeader($name) {
+		return array_key_exists($name, $this->headers) ? $this->headers[$name] : null;
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public function hasHeader($name) {
+		return array_key_exists($name, $this->headers);
+	}
+
+	/**
+	 * @param $headers
+	 *
+	 * @return array
+	 */
+	protected function parseHeaders ($headers) {
+
+		$parsedHeaders = [];
+
+		foreach ($headers as $header) {
+
+			$data = explode(':', $header);
+			$parsedHeaders[$data[0]] = $data[1];
+
+		}
+
+		return $parsedHeaders;
+
+	}
+
+	/**
+	 * @return array|false
+	 */
+	public function getHeaders() {
+		return $this->headers;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getProtocolVersion() {
+		return $_SERVER['SERVER_PROTOCOL'];
 	}
 
 	/**
@@ -161,15 +221,6 @@ class Request {
 	}
 
 	/**
-	 * Return current url with scheme
-	 *
-	 * @return string
-	 */
-	public function getUrl () {
-		return $this->scheme . '://' . $this->host . $this->uri;
-	}
-
-	/**
 	 * Return type method
 	 *
 	 * @return null
@@ -178,11 +229,17 @@ class Request {
 		return $this->method;
 	}
 
+	public function getStringUri () {
+
+		return (new RequestUri())->getQuery();
+
+	}
+
 	/**
 	 * @return null
 	 */
 	public function getUri () {
-		return $this->uri;
+		return new RequestUri();
 	}
 
 	/**
@@ -199,7 +256,7 @@ class Request {
 	 *
 	 * @return mixed
 	 */
-	private function filterRequest ($data) {
+	protected function filterRequest ($data) {
 		return filter_var($data, FILTER_SANITIZE_STRING);
 	}
 
