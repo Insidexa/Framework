@@ -15,6 +15,7 @@ use Framework\ {
 	DI\Service,
 	Exception\DatabaseException
 };
+use Framework\Exception\AuthLoginException;
 
 /**
  * Class ProfileController
@@ -25,16 +26,25 @@ class ProfileController extends Controller {
 
 	public function getAction () {
 
-		$user = Service::get('security')->getUser();
+		if (Service::get('security')->isAuthenticated()) {
+			$user = Service::get('security')->getUser();
 
-		return $this->render('profile.html', [
-			'user' => $user,
-			'action' => $this->generateRoute('update_profile')
-		]);
+			return $this->render('profile.html', [
+				'user' => $user,
+				'action' => $this->generateRoute('update_profile')
+			]);
+		}
 
+		return $this->redirect('login', 'Please Login');
 	}
 
 	public function updateAction () {
+
+		if (!Service::get('request')->isPost())
+			throw new \Exception('Hack attempt');
+
+		if (!Service::get('security')->isAuthenticated())
+			return $this->redirect('login', 'Please Login');
 
 		$errors = [];
 		$userId = (int)$this->getRequest()->post('id');
