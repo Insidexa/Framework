@@ -46,7 +46,7 @@ class Router {
 	public function __construct($config) {
 		$this->config = $config;
 
-		$url = parse_url($this->getFullUrl());
+		$url = parse_url(Service::get('request')->getUrl());
 
 		foreach ($url as $_propertyName => $propValue) {
 			$this->{'url' . ucfirst($_propertyName)} = $propValue;
@@ -71,46 +71,11 @@ class Router {
 				preg_replace(
 					'/^\//',
 					'',
-					Service::get('request')->getUri()
+					Service::get('request')->getStringUri()
 				)
 			);
 
 		return count($count);
-	}
-
-	/**
-	 * Return current full url
-	 *
-	 * @return string
-	 */
-	public function getFullUrl() {
-		return Service::get('request')->getUrl();
-	}
-
-	/**
-	 * Return scheme http or https
-	 *
-	 * @return string
-	 */
-	public function getScheme() {
-		return $this->urlScheme ? $this->urlScheme :
-			(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http');
-	}
-
-	/**
-	 * Return a string with the scheme, url and port
-	 *
-	 * @return string
-	 */
-	public function getHostName() {
-		return $this->urlScheme . '://' . $this->urlHost . ($this->urlPort != 80 ? ':' . $this->urlPort : '');
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getUrlPath() {
-		return $this->urlPath;
 	}
 
 	/**
@@ -155,7 +120,7 @@ class Router {
 		if ($this->_baseUrl === NULL)
 			$this->_baseUrl = rtrim(dirname($this->getScriptUrl()), '\\/');
 
-		return ($absolute ? $this->getHostName() : '') . $this->_baseUrl;
+		return ($absolute ? Service::get('request')->getUrl() : '') . $this->_baseUrl;
 	}
 
 	/**
