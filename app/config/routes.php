@@ -67,5 +67,13 @@ return array(
             '_method' => 'POST'
         )
 
+    ),
+    'show_form_edit' => array(
+        'pattern'       => '/posts/{id}/edit',
+        'controller'    => 'CMS\\Controller\\BlogController',
+        'action'        => 'edit',
+        '_requirements' => array(
+            'id'      => '\d+'
+        )
     )
 );
