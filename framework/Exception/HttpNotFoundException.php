@@ -9,7 +9,7 @@
 namespace Framework\Exception;
 
 
-class HttpNotFoundException extends \Exception
+class HttpNotFoundException extends \Framework\Exception\BaseException
 {
 
 }

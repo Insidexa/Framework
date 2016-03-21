@@ -10,6 +10,6 @@
 namespace Framework\Exception;
 
 
-class AuthLoginException extends \Exception{
+class AuthLoginException extends \Framework\Exception\BaseException {
 
 }

@@ -13,7 +13,7 @@ namespace Framework\Validation\Filter;
  *
  * @package Framework\Validation\Filter
  */
-class NotBlank
+class NotBlank implements FilterInterface
 {
 	/**
 	 * @var string

@@ -127,7 +127,7 @@ class Security {
 		$user->id = $model->id;
 		$user->email = $model->email;
 		$user->role = $model->role;
-		//$user->password = $model->password;
+		$user->password = $model->password;
 
 		Service::get('session')->set('user', $user);
 

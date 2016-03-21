@@ -10,6 +10,6 @@
 namespace Framework\Exception;
 
 
-class BadResponseTypeException {
+class BadResponseTypeException extends \Framework\Exception\BaseException  {
 
 }

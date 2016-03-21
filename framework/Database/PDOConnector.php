@@ -21,7 +21,7 @@ use Framework\Exception\DatabaseException;
 class PDOConnector {
 
 	/**
-	 * @var null
+	 * @var \PDO
 	 */
 	private static $instance;
 
@@ -86,9 +86,9 @@ class PDOConnector {
 	private $model = '';
 
 	/**
-	 * @var string
+	 * @var array
 	 */
-	protected $_table = '';
+	protected $_tables = [];
 
 	/**
 	 * @var string
@@ -123,6 +123,36 @@ class PDOConnector {
 		}
 
 		return static::$instance;
+
+	}
+
+	/**
+	 * @param string|array $tables
+	 *
+	 * @return $this
+	 * @throws DatabaseException
+	 */
+	protected function addTable ($tables) {
+
+		$type = gettype($tables);
+
+		switch ($type) {
+			case 'array':
+				$this->_tables = array_merge($this->_tables, $tables);
+				break;
+
+			case 'string':
+				$this->_tables[] = $tables;
+				break;
+
+			default:
+				throw new DatabaseException('Cannot add tables');
+				break;
+		}
+
+		$this->_tables = array_unique($this->_tables);
+
+		return $this;
 
 	}
 
@@ -244,17 +274,17 @@ class PDOConnector {
 			case 'SELECT':
 
 				$this->currentSql .= $this->getStringColumns();
-				$this->currentSql .= ' FROM ' . $this->_table;
+				$this->currentSql .= ' FROM ' . $this->getStringTables();
 
-				if (!empty($this->where)) {
+				if (count($this->where) !== 0) {
 					$this->currentSql .= $this->getStringWhere();
 				}
 
-				if (!empty($this->orderBy)) {
+				if (count($this->orderBy) !== 0) {
 					$this->currentSql .= $this->getStringOrderBy();
 				}
 
-				if (!empty($this->limit)) {
+				if (count($this->limit) !== 0) {
 					$this->currentSql .= $this->getStringLimit();
 				}
 
@@ -262,7 +292,7 @@ class PDOConnector {
 
 			case 'UPDATE':
 
-				$this->currentSql .= ' ' . $this->_table;
+				$this->currentSql .= ' ' . $this->getStringTables();
 				$this->currentSql .= ' SET';
 				$this->currentSql .= $this->getStringUpdate();
 				$this->currentSql .= $this->getStringWhere();
@@ -272,14 +302,14 @@ class PDOConnector {
 			case 'INSERT':
 
 				$this->currentSql .= ' INTO ';
-				$this->currentSql .= $this->_table;
+				$this->currentSql .= $this->getStringTables();
 				$this->currentSql .= $this->insert;
 
 				break;
 
 			case 'DELETE':
 
-				$this->currentSql .= ' FROM ' . $this->_table;
+				$this->currentSql .= ' FROM ' . $this->getStringTables();
 				$this->currentSql .= ' ' . $this->getStringWhere();
 
 				break;
@@ -345,13 +375,43 @@ class PDOConnector {
 	}
 
 	/**
+	 * @return string
+	 * @throws DatabaseException
+	 */
+	protected function getStringTables () {
+
+		$tablesSql = '';
+
+		if (count($this->_tables) === 1) {
+			$tablesSql = $this->_tables[0] ;
+		}
+
+		if (count($this->_tables) > 1) {
+
+			foreach($this->_tables as $table) {
+
+				$tablesSql .= '`' . $table . '`, ';
+
+			}
+
+			$tablesSql = substr($tablesSql, 0, -2);
+
+		}
+
+		if (empty($tablesSql)) throw new DatabaseException('Specify the table/s');
+
+		return $tablesSql;
+
+	}
+
+	/**
 	 * Set update data
 	 *
 	 * @param array $params
 	 */
 	protected function setUpdateValues(array $params = []) {
 
-		if (!empty($params)) {
+		if (count($params) !== 0) {
 			$this->update = $params;
 			$this->bindings = array_merge($params, $this->bindings);
 		}
@@ -394,7 +454,18 @@ class PDOConnector {
 				break;
 
 			case is_array($this->columns):
-				$columnsSql = ' `' . implode('`, `', $this->columns) . '`';
+				foreach($this->columns as $column) {
+
+					if (strstr($column, '.', false)) {
+						$data = explode('.', $column);
+						$columnsSql .= "`$data[0]`.`$data[1]`, ";
+					} else {
+						$columnsSql .= '`' . $column . '`, ';
+					}
+
+				}
+
+				$columnsSql = substr($columnsSql, 0, -2);
 				break;
 		}
 
@@ -412,9 +483,12 @@ class PDOConnector {
 		$whereSql = '';
 
 		foreach ($this->where as $nameColumn => $value) {
-//			if (!empty($nameColumn) && !empty($value)) {
+			if (strstr($nameColumn, '.', false)) {
+				$data = explode('.', $nameColumn);
+				$whereSql .= ' `' . $data[0] . '`.`' . $data[1] . '` = ' . $value . ' AND';
+			} else {
 				$whereSql .= ' `' . $nameColumn . '` = :' . $nameColumn . ' AND';
-//			}
+			}
 		}
 
 		$whereSql = substr($whereSql, 0, -4);
@@ -461,18 +535,30 @@ class PDOConnector {
 
 			$result = $this->statement->execute($this->bindings);
 
+			$this->clear();
+
 			if ($this->type === 'update'
 				|| $this->type === 'insert'
 				|| $this->type === 'delete') {
+
+				$this->type = '';
+
 				return $result;
 			}
-
-			$this->clear();
 
 			return $this->statement;
 		} catch (\PDOException $e) {
 			throw new DatabaseException('Error execute statement: ' . $e->getMessage());
 		}
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLastId () {
+
+		return self::$instance->lastInsertId();
+
 	}
 
 	/**
@@ -511,7 +597,7 @@ class PDOConnector {
 	/**
 	 * Close connection
 	 */
-	protected function closeConnection() {
+	public static function closeConnection() {
 		self::$instance = null;
 	}
 
