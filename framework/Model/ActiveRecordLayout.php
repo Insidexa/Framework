@@ -48,6 +48,8 @@ class ActiveRecordLayout extends PDOConnector {
 	 */
 	private $metaData = '';
 
+	protected $currentTable;
+
 	/**
 	 * ActiveRecordLayout constructor.
 	 *
@@ -59,7 +61,8 @@ class ActiveRecordLayout extends PDOConnector {
 		$pathNamespace = explode('\\', $this->pathNamespace);
 		$this->_model = end($pathNamespace);
 		$this->setModel($this->_model);
-		$this->_table = $data['table'];
+		$this->addTable($data['table']);
+		$this->currentTable = $data['table'];
 	}
 
 	/**
@@ -125,19 +128,68 @@ class ActiveRecordLayout extends PDOConnector {
 	/**
 	 * Get all public fields from model
 	 *
+	 * @param bool $getColumns
+	 *
 	 * @return array
 	 */
-	private function getPropertiesAndValuesChildClass() {
+	private function getPropertiesAndValuesChildClass($getColumns = false) {
 
 		$reflection = new \ReflectionClass($this->pathNamespace);
 		$classVars = $reflection->getProperties(\ReflectionProperty::IS_PUBLIC);
 
-		$vars = array_intersect_ukey($this->dataModel, $classVars, function ($key1, $key2) {
+		$data = array_intersect_ukey($this->dataModel, $classVars, function ($key1, $key2) {
 			if ($key1 === $key2)
 				return 0;
 		});
 
-		return $vars;
+		if ($getColumns) {
+
+			$columns = [];
+
+			foreach($data as $column => $value)
+				$columns[] = $column;
+
+			return $columns;
+		}
+
+		return $data;
+
+	}
+
+	/**
+	 * @param string $table
+	 *
+	 * @return $this
+	 */
+	public function with ($table) {
+
+		$model = new $table;
+		$table = $model::getTable();
+
+		$tablesFrom = [];
+		$columnsConditions = [];
+		$where = [];
+
+		foreach($model::$withModel as $_model) {
+			$tablesFrom[] = $_model::getTable();
+			$columnsConditions = array_merge($columnsConditions, $_model::$connectTo);
+		}
+
+		$columns = $this->getPropertiesAndValuesChildClass(true);
+		$columns[] = $this->currentTable . '.id';
+		$columns[] = $table . '.' . $model::$conditions;
+		$iteratorTables = 0;
+
+		foreach($columnsConditions as $columnsCondition) {
+			$where[$table . '.' . $columnsCondition] = $tablesFrom[$iteratorTables] . '.id';
+			++$iteratorTables;
+		}
+
+		$tablesFrom[] = $table;
+
+		$this->addTable($tablesFrom)->addColumn($columns)->addWhere($where);
+
+		return $this;
 
 	}
 
