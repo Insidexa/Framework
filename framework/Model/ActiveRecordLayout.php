@@ -213,7 +213,7 @@ class ActiveRecordLayout extends PDOConnector {
 					->where(['id' => $data])->get();
 				break;
 			case 'string' && $data === 'all':
-				return $this->select('*')->get();
+				return $this->select('*');
 				break;
 			default:
 				throw new \InvalidArgumentException('Invalid arguments');
