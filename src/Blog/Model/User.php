@@ -18,6 +18,8 @@ class User extends ActiveRecord implements UserInterface
     public $password;
     public $role;
 
+    public static $connectTo = ['user_id'];
+
     public static function getTable()
     {
         return 'users';
