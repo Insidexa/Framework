@@ -11,6 +11,8 @@ namespace Framework\Security;
 use Framework\DI\Service;
 use Framework\Exception\AuthLoginException;
 use Framework\Response\ResponseRedirect;
+use Framework\Exception\TokenException;
+use Framework\Session\Session;
 
 /**
  * Class Security for manipulation autorize,
@@ -30,6 +32,11 @@ class Security {
 	private $model;
 
 	/**
+	 * @var Session
+	 */
+	private $session;
+
+	/**
 	 * Change login url, model user
 	 *
 	 * Security constructor.
@@ -43,6 +50,8 @@ class Security {
 
 		$this->loginUrl = $url;
 		$this->model = $model;
+
+		$this->session = Service::get('session');
 
 		$this->getToken();
 
@@ -73,6 +82,17 @@ class Security {
 
 	}
 
+	public function checkToken () {
+		if (Service::get('request')->isPost()) {
+
+			if (Service::get('request')->post('_token') !== Service::get('security')->getToken()) {
+				throw new TokenException('Token mismatch exception');
+			}
+
+			$this->newToken();
+		}
+	}
+
 	/**
 	 * Return token if exists
 	 * Otherwise create new token
@@ -81,7 +101,7 @@ class Security {
 	 */
 	public function getToken () {
 
-		$token = Service::get('session')->get('token');
+		$token = $this->session->get('token');
 
 		return (!empty($token)) ? $token : $this->newToken();
 
@@ -90,11 +110,11 @@ class Security {
 	/**
 	 * Generate new token
 	 *
-	 * @return mixed
 	 */
 	private function newToken () {
 
-		return Service::get('session')->set('token', md5(random_int(0, 1000)));
+		$this->session->set('token', md5(random_int(0, 1000)));
+		return $this->session->get('token');
 
 	}
 
@@ -107,7 +127,7 @@ class Security {
 
 		$flag = false;
 
-		if (Service::get('session')->get('user') !== false) {
+		if ($this->session->get('user') !== false) {
 
 			$flag = true;
 
@@ -129,7 +149,7 @@ class Security {
 		$user->role = $model->role;
 		$user->password = $model->password;
 
-		Service::get('session')->set('user', $user);
+		$this->session->set('user', $user);
 
 	}
 
@@ -140,9 +160,9 @@ class Security {
 	 */
 	public function getUser () {
 
-		$user = Service::get('session')->get('user');
+		$user = $this->session->get('user');
 
-		if (Service::get('session')->get('user') === false) {
+		if ($this->session->get('user') === false) {
 			$user = null;
 		}
 
@@ -155,7 +175,7 @@ class Security {
 	 */
 	public function clear () {
 
-		Service::get('session')->destroy();
+		$this->session->destroy();
 
 	}
 
