@@ -17,8 +17,14 @@ namespace Framework\Logger;
  */
 class Logger {
 
-	private static $instance = null;
+	/**
+	 * @var Logger
+	 */
+	private static $instance;
 
+	/**
+	 * @var string
+	 */
 	private static $pathToLog;
 
 	const WARN = 'warning';
