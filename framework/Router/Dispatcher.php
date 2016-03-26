@@ -32,11 +32,11 @@ class Dispatcher {
 		$methodName = $method . 'Action';
 
 		if (!class_exists($controller)) {
-			throw new ClassNotFound('Class ' . $controller . ' not found', 500);
+			throw new ClassNotFound('Class ' . $controller . ' not found');
 		}
 
 		if (!method_exists($controller, $methodName)) {
-			throw new \BadMethodCallException('Method ' . $methodName . ' not found in ' . $controller, 500);
+			throw new \BadMethodCallException('Method ' . $methodName . ' not found in ' . $controller);
 		}
 
 		$di = new DependencyInjection($controller, $methodName, $arguments);
