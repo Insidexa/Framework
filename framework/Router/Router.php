@@ -3,6 +3,7 @@
 namespace Framework\Router;
 
 use Framework\DI\Service;
+use Framework\Request\Request;
 
 /**
  * Class Router
@@ -36,6 +37,11 @@ class Router {
 	private $security = '';
 
 	/**
+	 * @var Request
+	 */
+	private $request;
+
+	/**
 	 * Router constructor.
 	 * Change config
 	 * Run life cycle router
@@ -46,7 +52,9 @@ class Router {
 	public function __construct($config) {
 		$this->config = $config;
 
-		$url = parse_url(Service::get('request')->getUrl());
+		$this->request = Service::get('request');
+
+		$url = parse_url($this->request->getUrl());
 
 		foreach ($url as $_propertyName => $propValue) {
 			$this->{'url' . ucfirst($_propertyName)} = $propValue;
@@ -71,7 +79,7 @@ class Router {
 				preg_replace(
 					'/^\//',
 					'',
-					Service::get('request')->getStringUri()
+					$this->request->getStringUri()
 				)
 			);
 
@@ -82,8 +90,8 @@ class Router {
 	 * Run parsing url and change scheme, method
 	 */
 	public function run() {
-		$this->urlScheme = Service::get('request')->getScheme();
-		$this->method = Service::get('request')->getMethod();
+		$this->urlScheme = $this->request->getScheme();
+		$this->method = $this->request->getMethod();
 		$this->parseUrl();
 	}
 
@@ -93,19 +101,21 @@ class Router {
 	public function getScriptUrl() {
 		if ($this->_scriptUrl === NULL) {
 			$scriptName = basename($_SERVER['SCRIPT_FILENAME']);
-			if (basename($_SERVER['SCRIPT_NAME']) === $scriptName)
+			if (basename($_SERVER['SCRIPT_NAME']) === $scriptName) {
 				$this->_scriptUrl = $_SERVER['SCRIPT_NAME'];
-			elseif (basename($_SERVER['PHP_SELF']) === $scriptName)
+			} elseif (basename($_SERVER['PHP_SELF']) === $scriptName) {
 				$this->_scriptUrl = $_SERVER['PHP_SELF'];
-			elseif (isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $scriptName)
+			} elseif (isset($_SERVER['ORIG_SCRIPT_NAME']) && basename($_SERVER['ORIG_SCRIPT_NAME']) === $scriptName) {
 				$this->_scriptUrl = $_SERVER['ORIG_SCRIPT_NAME'];
-			elseif (($pos = strpos($_SERVER['PHP_SELF'], '/' . $scriptName)) !== false)
+			} elseif (($pos = strpos($_SERVER['PHP_SELF'], '/' . $scriptName)) !== false) {
 				$this->_scriptUrl = substr($_SERVER['SCRIPT_NAME'], 0, $pos) . '/' . $scriptName;
+			}
 			elseif (isset($_SERVER['DOCUMENT_ROOT']) &&
 				strpos($_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT']) === 0
-			)
+			) {
 				$this->_scriptUrl =
 					str_replace('\\', '/', str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']));
+			}
 		}
 
 		return $this->_scriptUrl;
@@ -120,7 +130,7 @@ class Router {
 		if ($this->_baseUrl === NULL)
 			$this->_baseUrl = rtrim(dirname($this->getScriptUrl()), '\\/');
 
-		return ($absolute ? Service::get('request')->getUrl() : '') . $this->_baseUrl;
+		return ($absolute ? $this->request->getUrl() : '') . $this->_baseUrl;
 	}
 
 	/**
@@ -309,7 +319,10 @@ class Router {
 	 * @return mixed
 	 */
 	public function getParam($name, $default) {
-		return array_key_exists($name, $this->urlParams) ?? $this->urlParams[ $name ] = $default;
+		if (array_key_exists($name, $this->urlParams)) {
+			return $this->urlParams[ $name ];
+		}
+		return $this->urlParams[ $name ] = $default;
 	}
 
 	/**
