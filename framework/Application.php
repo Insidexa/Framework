@@ -11,7 +11,6 @@ namespace Framework;
 use Framework\ {
 	Database\PDOConnector,
 	DI\Service,
-	Exception\TokenException,
 	Renderer\Render,
 	Request\Request,
 	Response\JsonResponse,
@@ -53,7 +52,7 @@ class Application
 			$this->showErrors();
 
 		} else {
-			$this->appError('Config not readable', 500);
+			$this->appError('Config not readable');
 		}
 
 	}
@@ -120,13 +119,7 @@ class Application
 				Service::get('security')->acl($map['security']);
 			}
 
-			if (Service::get('request')->isPost()) {
-
-				if (Service::get('request')->post('_token') !== Service::get('security')->getToken()) {
-					throw new TokenException('Token mismatch exception');
-				}
-
-			}
+			Service::get('security')->checkToken();
 
 			$response = Dispatcher::create($map['controller'], $map['method'], $map['params']);
 
@@ -159,7 +152,7 @@ class Application
 			return $response;
 		}
 
-		throw new BadResponseTypeException('Bad response', 500);
+		throw new BadResponseTypeException('Bad response');
 
 	}
 
@@ -187,6 +180,10 @@ class Application
 	 */
 	private function notFound () {
 		throw new HttpNotFoundException('Page not found', 404);
+	}
+
+	public function __destruct() {
+		\Framework\Database\PDOConnector::closeConnection();
 	}
 
 }
