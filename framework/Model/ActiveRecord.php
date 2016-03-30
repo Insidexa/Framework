@@ -14,9 +14,8 @@ namespace Framework\Model;
  *
  * @package Framework\Model
  *
- * @method static bool             save()
- * @method static mixed            find( $data )
- * @method static ActiveRecord     select( $columns )
+ * @method bool                    save()
+ * @method static object           find( $data )
  * @method static bool             update( array $params = [] )
  * @method static bool             delete()
  * @method static ActiveRecord     where( array $param = [] )
