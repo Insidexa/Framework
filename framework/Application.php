@@ -9,7 +9,7 @@
 namespace Framework;
 
 use Framework\ {
-	Database\PDOConnector,
+	Database\Database,
 	DI\Service,
 	Renderer\Render,
 	Request\Request,
@@ -23,7 +23,8 @@ use Framework\ {
 	Session\Session,
 	Logger\Logger,
 	Exception\BadResponseTypeException,
-	Config\Config
+	Config\Config,
+	Database\DBConnection
 };
 
 /**
@@ -164,7 +165,10 @@ class Application
 	private function createServices () {
 
 		Service::set('request', new Request());
-		Service::set('db', PDOConnector::getInstance(Service::get('config')->get('pdo')));
+		Service::set('db', DBConnection::getInstance(
+			Service::get('config')->get('pdo')
+		));
+		Database::setConnection(Service::get('db'));
 		Service::set('session', new Session());
 		Service::set('security', new Security(
 			Service::get('config')->get('security.login_route'),
@@ -183,7 +187,7 @@ class Application
 	}
 
 	public function __destruct() {
-		\Framework\Database\PDOConnector::closeConnection();
+		\Framework\Database\Database::closeConnection();
 	}
 
 }
