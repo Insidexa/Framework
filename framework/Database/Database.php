@@ -18,7 +18,7 @@ use Framework\Exception\DatabaseException;
  *
  * @author Jashka
  */
-abstract class PDOConnector {
+abstract class Database {
 
 	/**
 	 * @var \PDO
