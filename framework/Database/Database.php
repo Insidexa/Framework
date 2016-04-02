@@ -18,17 +18,12 @@ use Framework\Exception\DatabaseException;
  *
  * @author Jashka
  */
-class PDOConnector {
+abstract class Database {
 
 	/**
 	 * @var \PDO
 	 */
 	private static $instance;
-
-	/**
-	 * @var array
-	 */
-	private static $config = [];
 
 	/**
 	 * @var null
@@ -96,33 +91,15 @@ class PDOConnector {
 	protected $type = '';
 
 	/**
-	 * Return the same object
-	 * Singleton
+	 * Set db connection
 	 *
-	 * @param array $config
+	 * @param \PDO $connection
 	 *
-	 * @return \PDO
 	 * @throws DatabaseException
 	 */
-	public static function getInstance(array $config = []) {
-		if (static::$instance === null) {
-			self::$config = $config;
-			try {
-				static::$instance = new \PDO(
-					self::$config['dns'],
-					self::$config['user'],
-					self::$config['password']
-				);
+	public static function setConnection(\PDO $connection) {
 
-				static::$instance->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-			} catch (\PDOException $e) {
-				throw new DatabaseException($e->getMessage());
-			}
-
-		}
-
-		return static::$instance;
+		self::$instance = $connection;
 
 	}
 

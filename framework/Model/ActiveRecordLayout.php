@@ -9,7 +9,7 @@
 
 namespace Framework\Model;
 
-use Framework\Database\PDOConnector;
+use Framework\Database\Database;
 use Framework\Exception\DatabaseException;
 
 /**
@@ -21,7 +21,7 @@ use Framework\Exception\DatabaseException;
  *
  * @author Jashka
  */
-class ActiveRecordLayout extends PDOConnector {
+class ActiveRecordLayout extends Database {
 
 	/**
 	 * @var array
