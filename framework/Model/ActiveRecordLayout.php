@@ -213,7 +213,7 @@ class ActiveRecordLayout extends Database {
 					->where(['id' => $data])->get();
 				break;
 			case 'string' && $data === 'all':
-				return $this->select('*');
+				return $this->select('*')->get();
 				break;
 			default:
 				throw new \InvalidArgumentException('Invalid arguments');
