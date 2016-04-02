@@ -25,7 +25,7 @@ class Event {
 	 * @param       $nameEvent
 	 * @param array $arguments
 	 */
-	public static function trigger ($nameEvent, $arguments = []) {
+	public static function emit ($nameEvent, array $arguments = []) {
 
 		if (array_key_exists($nameEvent, self::$events)) {
 			foreach (self::$events as $callback) {
@@ -37,9 +37,9 @@ class Event {
 
 	/**
 	 * @param          $eventName
-	 * @param \Closure $callback
+	 * @param $callback
 	 */
-	public static function bind ($eventName, \Closure $callback) {
+	public static function on ($eventName, $callback) {
 		self::$events[$eventName] = $callback;
 	}
 
