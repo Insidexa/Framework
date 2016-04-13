@@ -18,8 +18,6 @@ namespace Framework\Session;
  */
 class Session {
 
-	public $returnUrl = '';
-
 	/**
 	 * Session constructor.
 	 */
@@ -29,15 +27,10 @@ class Session {
 			session_start();
 		}
 
-		if (isset($_SERVER['HTTP_REFERER'])) {
-			$this->returnUrl = $_SERVER['HTTP_REFERER'];
-		}
-
 	}
 
 	public function destroy () {
 
-		session_unset();
 		session_destroy();
 
 	}
@@ -50,17 +43,6 @@ class Session {
 	public function get ($name) {
 
 		return array_key_exists($name, $_SESSION) ? $_SESSION[$name] : false ;
-
-	}
-
-	/**
-	 * @param $name
-	 */
-	public function delete ($name) {
-
-		if (array_key_exists($name, $_SESSION)) {
-			unset($_SESSION[$name]);
-		}
 
 	}
 
@@ -82,52 +64,32 @@ class Session {
 		$type = gettype($value);
 
 		switch($type) {
-			case 'boolean':
-			case 'resource':
 			case 'string':
-			case 'object':
-			case 'array':
 				$_SESSION[$name] = $value;
 				break;
 
-			case 'object' && is_callable($value):
+			case 'object':
 				$_SESSION[$name] = $value();
 				break;
 		}
 
-	}
 
-	/**
-	 * @return array|bool
-	 */
-	public function getFlushMessages () {
-
-		return ($this->get('flush') === false) ? [] : $this->get('flush');
 
 	}
 
 	/**
-	 * @param $message
-	 * @param $type
+	 * @param $name
+	 * @param $arguments
+	 *
+	 * @throws \BadMethodCallException
 	 */
-	public function addFlushMessage ($message, $type) {
+	public static function __callStatic($name, $arguments) {
 
-		$flush = [];
-
-		if (!empty($message)) {
-			if ($type === '') {
-
-				$flush['info'][] = $message;
-
-			} else {
-
-				$flush[$type][] = $message;
-
-			}
+		if (method_exists(self::class, $name)) {
+			self::$name();
 		}
 
-		$this->set('flush', $flush);
-
+		throw new \BadMethodCallException('Method ' . $name . ' does not exists');
 	}
 
 }

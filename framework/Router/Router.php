@@ -2,11 +2,10 @@
 
 namespace Framework\Router;
 use Framework\DI\Service;
+use Framework\Exception\HttpNotFoundException;
 
 /**
  * Class Router
- *
- * @package Framework\Router
  */
 class Router {
 
@@ -30,14 +29,6 @@ class Router {
 	private $_scriptUrl;
 	private $_baseUrl;
 
-	private $nameRoute = '';
-	private $security = '';
-
-	/**
-	 * Router constructor.
-	 *
-	 * @param $config
-	 */
 	public function __construct($config) {
 		$this->config = $config;
 
@@ -53,9 +44,6 @@ class Router {
 		$this->run();
 	}
 
-	/**
-	 * @return int
-	 */
 	public function getSegments() {
 		$count = count($this->segments)
 			? $this->segments
@@ -71,19 +59,11 @@ class Router {
 		return count($count);
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getFullUrl() {
 		return Service::get('request')->getUrl();
 	}
 
-	/**
-	 * @param      $name
-	 * @param null $class
-	 *
-	 * @return bool
-	 */
+
 	protected function checkPublicProperty($name, $class = NULL) {
 		$class = $class ?: $this;
 		$reflection = new \ReflectionObject($class);
@@ -98,40 +78,43 @@ class Router {
 		return false;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getScheme() {
 		return $this->urlScheme ? $this->urlScheme :
-			(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http');
+			(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http');
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getHostName() {
-		return $this->urlScheme . '://' . $this->urlHost . ($this->urlPort != 80 ? ':' . $this->urlPort : '');
+		return $this->urlScheme . "://" . $this->urlHost . ($this->urlPort != 80 ? ":$this->urlPort" : '');
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getUrlPath() {
 		return $this->urlPath;
 	}
 
-	/**
-	 *
-	 */
+	public function __get($name) {
+		$methodName = 'get' . ucfirst($name);
+		if (method_exists($this, $methodName)) {
+			return $this->{$methodName}();
+		} else if (property_exists($this, $name) && $this->checkPublicProperty($name)) {
+			return $this->{$name};
+		}
+	}
+
+	public function __set($name, $value) {
+		$methodName = 'set' . ucfirst($name);
+		if (method_exists($this, $methodName)) {
+			$this->{$methodName}($value);
+		} else if (property_exists($this, $name) && $this->checkPublicProperty($name)) {
+			$this->{$name} = $value;
+		}
+	}
+
 	public function run() {
 		$this->urlScheme = Service::get('request')->getScheme();
 		$this->method = Service::get('request')->getMethod();
 		$this->parseUrl();
 	}
 
-	/**
-	 * @return mixed|null|string
-	 */
 	public function getScriptUrl() {
 		if ($this->_scriptUrl === NULL) {
 			$scriptName = basename($_SERVER['SCRIPT_FILENAME']);
@@ -153,11 +136,6 @@ class Router {
 		return $this->_scriptUrl;
 	}
 
-	/**
-	 * @param bool $absolute
-	 *
-	 * @return string
-	 */
 	public function getBaseUrl($absolute = false) {
 		if ($this->_baseUrl === NULL)
 			$this->_baseUrl = rtrim(dirname($this->getScriptUrl()), '\\/');
@@ -165,12 +143,9 @@ class Router {
 		return ($absolute ? $this->getHostName() : '') . $this->_baseUrl;
 	}
 
-	/**
-	 *
-	 */
 	public function parseUrl() {
 
-		switch (count($this->segments)) {
+		switch (sizeof($this->segments)) {
 			case 1:
 				if ($this->segments[0] === '') {
 					$this->instanceController($this->defaultControllerName, $this->defaultActionName);
@@ -186,18 +161,12 @@ class Router {
 		$this->getRouteFromConfig();
 	}
 
-	/**
-	 * @param       $routeName
-	 * @param array $params
-	 *
-	 * @return mixed|string
-	 */
 	public function buildRoute ($routeName, array $params = []) {
 
 		if (array_key_exists($routeName, $this->config)) {
 			$this->buildUrl = $this->config[$routeName]['pattern'];
 
-			if(count($params) > 0) {
+			if(!empty($params)) {
 				foreach ($params as $key => $value) {
 					$this->buildUrl = str_replace("{{$key}}", $value, $this->buildUrl);
 				}
@@ -212,81 +181,75 @@ class Router {
 
 	}
 
-	/**
-	 * @param       $name
-	 * @param       $action
-	 * @param array $params
-	 */
 	protected function instanceController($name, $action, array $params = []) {
 		$this->controllerName = $name;
 		$this->actionName = $action;
 		$this->urlParams = $this->parseParams($params);
 	}
 
-	/**
-	 * @param      $params
-	 * @param bool $notReturn
-	 *
-	 * @return array|string
-	 */
 	protected function parseParams($params, $notReturn = false) {
 
-		$countParams = count($params);
-
-		if (!$countParams) {
+		if (!sizeof($params)) {
 			return $notReturn ? [] : $this->urlParams;
 		}
 
-		if ($countParams === 1) {
-			return $params;
-		}
-
-		for($i = 0; $i < $countParams; $i++ ) {
-			$key = $params[$i++];
-			$this->urlParams[$key] = $params[$i];
+		foreach ($params as $key => $value) {
+			$this->urlParams[$key] = $value;
 		}
 
 		return $this->urlParams;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getNameRoute () {
-
-		return $this->nameRoute;
-
-	}
-
-	/**
-	 *
-	 */
 	protected function getRouteFromConfig() {
-		foreach ($this->config as $nameRoute => $_next) {
+		foreach ($this->config as $_next) {
 			$patterExplode = explode('/', preg_replace("/^\//", '', $_next['pattern']));
 
 			if ($patterExplode[0] === '') {
-
 				if ($this->controllerName === $this->defaultControllerName) {
-					$this->setMap($nameRoute, $_next);
+					$this->controllerName = $_next['controller'];
+					$this->actionName = $_next['action'];
 				}
 			} else if ($patterExplode[0] === $this->controllerName) {
+				//echo $this->controllerName . "<br/>";
 
-				if (count($this->segments) === count($patterExplode)) {
-					$requirement = array_key_exists('_requirements', $_next) ? $_next['_requirements'] : array('_method' => $this->method);
-					$pattern = '/' . str_replace('/', '\\/', $_next['pattern']) . '/i';
+				if (sizeof($this->segments) === sizeof($patterExplode)) {
+					$requirement = isset($_next['_requirements']) ? $_next['_requirements'] : array('_method' => 'GET');
+					$pattern = '/' . str_replace('/', "\\/", $_next['pattern']) . "/i";
 					if ($requirement) {
 
 						foreach ($requirement as $_nextRule => $_valueRule) {
-							$pattern = str_replace('{' . $_nextRule . '}', $_valueRule, $pattern);
+							$pattern = str_replace("{{$_nextRule}}", $_valueRule, $pattern);
 						}
 
-						if (array_key_exists('_method', $requirement) && (strtolower($requirement['_method']) !== strtolower($this->method))) {
-							continue;
+						if (isset($requirement['_method']) && (strtolower($requirement['_method']) !== strtolower($this->method))) {
+							throw new HttpNotFoundException('Method mismatched');
+							/*echo 'Error. Method mismatched!';
+							var_dump($_next, $requirement, $this->method);
+							continue;*/
 						} else if (preg_match($pattern, '/' . implode('/', $this->segments))) {
+							//echo "Route found";
 
-							$this->parseRequirements($nameRoute, $_next);
+							$this->controllerName = $_next['controller'];
+							$this->actionName = $_next['action'];
 
+							$newSegment = array();
+
+							foreach ($this->segments as $key => $_nextSegmentValue) {
+								if (!$key) continue;
+								if ($_nextSegmentValue !== $this->controllerName && $_nextSegmentValue !== $this->actionName) {
+									$newSegment[] = $_nextSegmentValue;
+								}
+							}
+
+							if (sizeof($newSegment)) {
+								if (intval($newSegment[0]) > 0) {
+
+									$newSegment = array_merge(array('id' => $newSegment[0]),
+										$this->parseParams(array_slice($newSegment, 1), true));
+								}
+
+								$this->urlParams = $this->parseParams($newSegment);
+							}
 						}
 					}
 				}
@@ -294,70 +257,22 @@ class Router {
 		}
 	}
 
-	/**
-	 * @param $nameRoute
-	 * @param $_next
-	 */
-	private function setMap ($nameRoute, $_next) {
-		$this->nameRoute = $nameRoute;
-		$this->controllerName = $_next['controller'];
-		$this->actionName = $_next['action'];
-		$this->security = $_next['security'] ?? '';
-	}
-
-	/**
-	 * @param $nameRoute
-	 * @param $_next
-	 */
-	private function parseRequirements ($nameRoute, $_next) {
-		$this->setMap($nameRoute, $_next);
-
-		$newSegment = array();
-
-		foreach ($this->segments as $key => $_nextSegmentValue) {
-			if (!$key) {
-				continue;
-			}
-			if ($_nextSegmentValue !== $this->controllerName && $_nextSegmentValue !== $this->actionName) {
-				$newSegment[] = $_nextSegmentValue;
-			}
-		}
-
-		if (count($newSegment)) {
-			if ((int)$newSegment[0] > 0) {
-				$newSegment = array_merge(array('id' => $newSegment[0]),
-					$this->parseParams(array_slice($newSegment, 1), true));
-			}
-
-			$this->urlParams = $this->parseParams($newSegment);
-		}
-	}
-
-	/**
-	 * @param $name
-	 * @param $default
-	 *
-	 * @return mixed
-	 */
 	public function getParam($name, $default) {
-		return array_key_exists($name, $this->urlParams) ?? $this->urlParams[$name] = $default;
+		return isset($this->urlParams[$name]) ? $this->urlParams[$name] : $this->urlParams[$name] = $default;
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getMap () {
 		return [
 			'controller' => (!empty($this->controllerName)) ? $this->controllerName : $this->defaultControllerName,
 			'method' => (!empty($this->actionName)) ? $this->actionName : $this->defaultActionName,
-			'params' => $this->urlParams,
-			'security' => $this->security
+			'params' => $this->urlParams
 		];
 	}
 
-	/**
-	 * @return string
-	 */
+	public function dump () {
+		var_dump($this);
+	}
+
 	public function __toString() {
 		return PHP_EOL . "actionName: \t\t" . $this->actionName . PHP_EOL
 		. "controllerName: \t" . $this->controllerName . PHP_EOL

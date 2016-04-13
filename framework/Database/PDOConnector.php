@@ -14,8 +14,12 @@ use Framework\Exception\DatabaseException;
  * Class PDOConnector
  *
  * @package Framework\Database
+ */
+
+/**
+ * Class PDOConnector
  *
- * @author Jashka
+ * @package Framework\Database
  */
 class PDOConnector {
 
@@ -97,7 +101,7 @@ class PDOConnector {
 	/**
 	 * @param array $config
 	 *
-	 * @return \PDO
+	 * @return null
 	 * @throws DatabaseException
 	 */
 	public static function getInstance(array $config = []) {
@@ -129,7 +133,15 @@ class PDOConnector {
 	 */
 	protected function addColumn($column) {
 
-		$this->columns = $column;
+		switch ($column) {
+			case is_string($column):
+				$this->columns = $column;
+				break;
+
+			case is_array($column):
+				$this->columns = $column;
+				break;
+		}
 
 		return $this;
 
@@ -204,7 +216,7 @@ class PDOConnector {
 	 *
 	 * @return $this
 	 */
-	public function limit($from, $to = null) {
+	protected function limit($from, $to = null) {
 		$this->limit = [
 			'from' => $from,
 			'to'   => $to,
@@ -223,6 +235,7 @@ class PDOConnector {
 			case 'SELECT':
 
 				$this->currentSql .= $this->getStringColumns();
+
 				$this->currentSql .= ' FROM ' . $this->_table;
 
 				if (!empty($this->where)) {
@@ -230,6 +243,7 @@ class PDOConnector {
 				}
 
 				if (!empty($this->orderBy)) {
+
 					$this->currentSql .= $this->getStringOrderBy();
 				}
 
@@ -237,14 +251,20 @@ class PDOConnector {
 					$this->currentSql .= $this->getStringLimit();
 				}
 
+				$this->queryEnd();
+
 				break;
 
 			case 'UPDATE':
 
 				$this->currentSql .= ' ' . $this->_table;
 				$this->currentSql .= ' SET';
+
 				$this->currentSql .= $this->getStringUpdate();
+
 				$this->currentSql .= $this->getStringWhere();
+
+				$this->queryEnd();
 
 				break;
 
@@ -252,7 +272,10 @@ class PDOConnector {
 
 				$this->currentSql .= ' INTO ';
 				$this->currentSql .= $this->_table;
+
 				$this->currentSql .= $this->insert;
+
+				$this->queryEnd();
 
 				break;
 
@@ -260,6 +283,7 @@ class PDOConnector {
 
 				$this->currentSql .= ' FROM ' . $this->_table;
 				$this->currentSql .= ' ' . $this->getStringWhere();
+				$this->queryEnd();
 
 				break;
 
@@ -267,8 +291,6 @@ class PDOConnector {
 				throw new DatabaseException('Unknown operation: ' . $this->currentSql);
 				break;
 		}
-
-		$this->queryEnd();
 
 		return $this->execute();
 
@@ -379,9 +401,9 @@ class PDOConnector {
 		$whereSql = '';
 
 		foreach ($this->where as $nameColumn => $value) {
-//			if (!empty($nameColumn) && !empty($value)) {
+			if (!empty($nameColumn) && !empty($value)) {
 				$whereSql .= ' `' . $nameColumn . '` = :' . $nameColumn . ' AND';
-//			}
+			}
 		}
 
 		$whereSql = substr($whereSql, 0, -4);

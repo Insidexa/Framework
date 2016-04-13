@@ -9,90 +9,43 @@
 namespace Framework\Validation;
 
 
-use Framework\DI\Service;
-
-/**
- * Class Validator
- *
- * @package Framework\Validation
- */
 class Validator
 {
-	/**
-	 * @var array
-	 */
 	private $errors = [];
-
-	/**
-	 * @var object
-	 */
 	private $model;
 
-	/**
-	 * @var string
-	 */
-	private $modelName;
-
-	/**
-	 * Validator constructor.
-	 *
-	 * @param $model
-	 */
 	public function __construct($model) {
 		$this->model = $model;
-
-		$reflection = new \ReflectionClass($model);
-		$this->modelName = strtolower($reflection->getShortName());
 
 		$this->check();
 	}
 
-	/**
-	 *
-	 */
 	private function check () {
 
 		$rulesModel = $this->model->getRules();
 
 		foreach ($rulesModel as $properties => $rules) {
 
-			$messages = '';
-
 			foreach ($rules as $filter) {
-				$result = $filter->checkInput($properties, $this->model->$properties);
+				$result = $filter->checkInput($this->model->$properties);
 				if (!$result)
-					$messages .= "<br>" . $filter->getErrors();
+					$this->errors[$properties] .= "<br>" . $filter->getErrors();
 			}
-
-			if (!empty($messages))
-				$this->errors[$properties] = $messages;
 
 		}
 
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getErrors () {
 		return $this->errors;
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isValid () {
-
-		$isValid = false;
-		Service::get('session')->set('validator.data', [
-			$this->modelName => $this->model
-		]);
-
+		$isErrors = false;
 		if (count($this->errors) === 0) {
-			Service::get('session')->delete('validator.data');
-			$isValid = true;
+			$isErrors = true;
 		}
 
-		return $isValid;
+		return $isErrors;
 	}
 }
