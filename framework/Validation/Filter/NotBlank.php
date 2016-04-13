@@ -8,18 +8,12 @@
 
 namespace Framework\Validation\Filter;
 
-<<<<<<< HEAD
 /**
  * Class NotBlank
  *
  * @package Framework\Validation\Filter
  */
-class NotBlank implements FilterInterface
-=======
-
-class NotBlank
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
-{
+class NotBlank implements FilterInterface {
 	private $error = '';
 
 	public function __construct() {}

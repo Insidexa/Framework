@@ -8,7 +8,6 @@
 
 namespace Framework\Response;
 
-<<<<<<< HEAD
 /**
  * Class ResponseRedirect
  * Send redirect to url
@@ -28,9 +27,7 @@ class ResponseRedirect extends Response {
 		$this->addHeader('Location', $url);
 
 		parent::__construct('', $code);
-=======
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 
-class ResponseRedirect {
+	}
 
 }

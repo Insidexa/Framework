@@ -10,8 +10,8 @@ $isEdit = function ($userPostId, $id) use ($currentId) {
         <div class="blog-post">
             <h2 class="blog-post-title"><a href="/posts/<?php echo $post->id ?>"> <?php echo $post->title ?></a><?php echo $isEdit($post->user_id, $post->id); ?></h2>
 
-            <p class="blog-post-meta"><?php echo date('F j, Y', strtotime($post->date)) ?> by <a
-                    href="#"><?php echo $post->name ?></a>
+            <p class="blog-post-meta"><?php echo date('F j, Y', strtotime($post->date)) ?> by <!--<a
+                    href="#"><?php /*echo $post->name */?></a>-->
             </p>
 
             <?php echo htmlspecialchars_decode($post->content) ?>

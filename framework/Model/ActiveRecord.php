@@ -8,14 +8,10 @@
 
 namespace Framework\Model;
 
-use Framework\Database\PDOConnector;
-use Framework\Exception\DatabaseException;
-
 /**
  * Class ActiveRecord
  * Record as an object management
  *
-<<<<<<< HEAD
  * @package Framework\Model
  *
  * @method bool                    save()
@@ -29,40 +25,32 @@ use Framework\Exception\DatabaseException;
  * @method static ActiveRecord     limit( $from, $to = null )
  * @method static object|bool      get()
  *
-=======
- * @package Framework\Database
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
  */
-class ActiveRecord extends PDOConnector {
+class ActiveRecord {
+
 
 	/**
 	 * @var array
 	 */
-	private $dataModel = [];
+	private static $data;
 
 	/**
+	 * Multiton
+	 *
+	 * Pull singleton
+	 *
 	 * @var array
 	 */
-	private $data = [];
-
-	private $pathNamespace = '';
+	public static $pullActiveRecordLayout = [];
 
 	/**
-	 * @var mixed|string
+	 * Multiton
+	 *
+	 * Pull singleton
+	 *
+	 * @var array
 	 */
-	private $_model = '';
-
-	/**
-	 * ActiveRecord constructor.
-	 */
-	public function __construct() {
-		$this->dataModel = get_object_vars($this);
-		$this->pathNamespace = get_class($this);
-		$pathNamespace = explode('\\', $this->pathNamespace);
-		$this->_model = end($pathNamespace);
-		$this->setModel($this->_model);
-		$this->_table = static::getTable();
-	}
+	private static $pullModels = [];
 
 	/**
 	 * We need to call the static methods
@@ -71,230 +59,72 @@ class ActiveRecord extends PDOConnector {
 	 * @param $name
 	 * @param $arguments
 	 *
-	 * @return array
-	 * @throws DatabaseException
+	 * @return mixed
 	 */
-	public function __call($name, $arguments) {
-		if (strstr($name, 'findBy', false)) {
-			$columnName = strtolower(str_replace('findBy', '', $name));
-			if ($this->findColumn($columnName)) {
-				return $this->selectDB()
-					->select('*')
-					->where([$columnName => $arguments[0]])
-					->limit(1)
-					->get();
-			}
-			throw new DatabaseException('Not found properties in ' . $this->pathNamespace);
+	public static function __callStatic($name, $arguments) {
+		if (!in_array(static::class, self::$pullModels)) {
+			self::$pullModels[static::class] = new static;
 		}
+		$modelObj = self::$pullModels[static::class];
+
+		self::getDataModel($modelObj);
+
+		return self::callMethod($name, $arguments);
 	}
 
 	/**
-	 * @param $columnName
-	 *
-	 * @return bool
+	 * @param $modelObj
 	 */
-	private function findColumn($columnName) {
+	private static function getDataModel ($modelObj) {
 
-		foreach ($this->dataModel as $key => $value) {
-			if ($key === $columnName) return true;
-		}
-
-		return false;
+		self::$data['objVars'] = get_object_vars($modelObj);
+		self::$data['pathNamespace'] = get_class($modelObj);
+		self::$data['table'] = static::getTable();
 
 	}
 
 	/**
-	 * @return null
-	 */
-	public function save() {
-
-		$this->type = 'insert';
-		$params = $this->getPropertiesAndValuesChildClass();
-
-		$this->insertValues($params);
-		$this->insertDB();
-
-		return $this->assemblyQuery();
-	}
-
-	/**
-<<<<<<< HEAD
 	 * The same thing, only it is necessary to create an object
 	 *
 	 * @param $name
 	 * @param $arguments
 	 *
 	 * @return mixed
-=======
-	 * @return array
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 	 */
-	private function getPropertiesAndValuesChildClass() {
+	public function __call($name, $arguments) {
 
-		$objectVars = get_object_vars($this);
+		self::getDataModel($this);
 
-		$reflection = new \ReflectionClass($this->pathNamespace);
-		$classVars = $reflection->getProperties(\ReflectionProperty::IS_PUBLIC);
-
-		$vars = array_intersect_ukey($objectVars, $classVars, function ($key1, $key2) {
-			if ($key1 === $key2)
-				return 0;
-		});
-
-		return $vars;
-
+		return self::callMethod($name, $arguments);
 	}
 
 	/**
-<<<<<<< HEAD
 	 * Call method in ActiveRecordLayout without or with arguments
 	 *
 	 * @param $name
 	 * @param $arguments
-=======
-	 * @param $data
 	 *
-	 * @throws \InvalidArgumentException
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
-	 *
-	 * @return $this|array
+	 * @return mixed
 	 */
-	public function find($data) {
+	private static function callMethod ($name, $arguments) {
 
-		switch ($data) {
-			case is_int($data):
-				return $this->selectDB()
-					->where(['id' => $data])->get();
+		$modelNamespace = self::$data['pathNamespace'];
 
-				break;
-			case is_string($data) && $data === 'all':
-				return $this->selectDB()
-					->select('*')->get();
-				break;
-
-			default:
-				throw new \InvalidArgumentException('Invalid arguments');
-				break;
+		if (!array_key_exists($modelNamespace, self::$pullActiveRecordLayout)) {
+			self::$pullActiveRecordLayout[$modelNamespace] = new ActiveRecordLayout(self::$data);
 		}
 
-		return $this;
-	}
+		$model = self::$pullActiveRecordLayout[$modelNamespace];
 
-	/**
-	 * @param array $params
-	 *
-	 * @return array|bool
-	 */
-	public function update(array $params = []) {
+		if (!strstr($name, 'findBy')) {
+			$reflectionMethod = new \ReflectionMethod($model, $name);
 
-		$this->type = 'update';
-
-		$this->updateDB();
-
-		$this->setUpdateValues($params);
-
-		$result = $this->query();
-
-		return $result;
-	}
-
-	/**
-	 * @param array | string $columns
-	 *
-	 * @return $this
-	 */
-	public function select($columns) {
-
-		$this->selectDB();
-		$this->addColumn($columns);
-
-		return $this;
-	}
-
-	/**
-	 *
-	 * @return $this
-	 */
-	public function delete() {
-
-		$this->type = 'delete';
-
-		$this->deleteDB();
-
-		return $this->query();
-
-	}
-
-	/**
-	 * @return array|bool
-	 */
-	public function query() {
-
-		$stmp = $this->assemblyQuery();
-
-		if (is_bool($stmp)) return $stmp;
-
-		while ($object = $stmp->fetch()) {
-			$this->data[] = $object;
+			if ($reflectionMethod->getNumberOfParameters() === 0) {
+				return $model->$name();
+			}
 		}
 
-		if (count($this->data) === 1) {
-			$this->data = $this->data[0];
-		}
-
-		if (count($this->data) === 0) {
-			return false;
-		}
-
-		return $this->data;
-
-	}
-
-	/**
-	 * @param array $param
-	 *
-	 * @return $this
-	 */
-	public function where(array $param = []) {
-
-		$this->addWhere($param);
-
-		return $this;
-
-	}
-
-	/**
-	 * @param array $param
-	 *
-	 * @return $this
-	 */
-	public function order(array $param = []) {
-
-		$this->orderBy($param);
-
-		return $this;
-
-	}
-
-	/**
-	 * @param      $from
-	 * @param null $to
-	 *
-	 * @return $this
-	 */
-	public function limit($from, $to = null) {
-
-		parent::limit($from, $to);
-
-		return $this;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function get() {
-
-		return $this->query();
+		return $model->$name($arguments[0]);
 
 	}
 

@@ -15,12 +15,8 @@ use Framework\Exception\DatabaseException;
  * Constructor queries
  *
  * @package Framework\Database
- */
-
-/**
- * Class PDOConnector
  *
- * @package Framework\Database
+ * @author Jashka
  */
 abstract class Database {
 
@@ -99,10 +95,6 @@ abstract class Database {
 	 *
 	 * @param \PDO $connection
 	 *
-<<<<<<< HEAD:framework/Database/Database.php
-=======
-	 * @return null
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556:framework/Database/PDOConnector.php
 	 * @throws DatabaseException
 	 */
 	public static function setConnection(\PDO $connection) {
@@ -150,15 +142,7 @@ abstract class Database {
 	 */
 	protected function addColumn($column) {
 
-		switch ($column) {
-			case is_string($column):
-				$this->columns = $column;
-				break;
-
-			case is_array($column):
-				$this->columns = $column;
-				break;
-		}
+		$this->columns = $column;
 
 		return $this;
 
@@ -246,7 +230,7 @@ abstract class Database {
 	 *
 	 * @return $this
 	 */
-	protected function limit($from, $to = null) {
+	public function limit($from, $to = null) {
 		$this->limit = [
 			'from' => $from,
 			'to'   => $to,
@@ -267,23 +251,13 @@ abstract class Database {
 			case 'SELECT':
 
 				$this->currentSql .= $this->getStringColumns();
-<<<<<<< HEAD:framework/Database/Database.php
 				$this->currentSql .= ' FROM ' . $this->getStringTables();
-=======
-
-				$this->currentSql .= ' FROM ' . $this->_table;
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556:framework/Database/PDOConnector.php
 
 				if (count($this->where) !== 0) {
 					$this->currentSql .= $this->getStringWhere();
 				}
 
-<<<<<<< HEAD:framework/Database/Database.php
 				if (count($this->orderBy) !== 0) {
-=======
-				if (!empty($this->orderBy)) {
-
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556:framework/Database/PDOConnector.php
 					$this->currentSql .= $this->getStringOrderBy();
 				}
 
@@ -291,35 +265,22 @@ abstract class Database {
 					$this->currentSql .= $this->getStringLimit();
 				}
 
-				$this->queryEnd();
-
 				break;
 
 			case 'UPDATE':
 
 				$this->currentSql .= ' ' . $this->getStringTables();
 				$this->currentSql .= ' SET';
-
 				$this->currentSql .= $this->getStringUpdate();
-
 				$this->currentSql .= $this->getStringWhere();
-
-				$this->queryEnd();
 
 				break;
 
 			case 'INSERT':
 
 				$this->currentSql .= ' INTO ';
-<<<<<<< HEAD:framework/Database/Database.php
 				$this->currentSql .= $this->getStringTables();
-=======
-				$this->currentSql .= $this->_table;
-
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556:framework/Database/PDOConnector.php
 				$this->currentSql .= $this->insert;
-
-				$this->queryEnd();
 
 				break;
 
@@ -327,7 +288,6 @@ abstract class Database {
 
 				$this->currentSql .= ' FROM ' . $this->getStringTables();
 				$this->currentSql .= ' ' . $this->getStringWhere();
-				$this->queryEnd();
 
 				break;
 
@@ -335,6 +295,8 @@ abstract class Database {
 				throw new DatabaseException('Unknown operation: ' . $this->currentSql);
 				break;
 		}
+
+		$this->queryEnd();
 
 		return $this->execute();
 
@@ -498,14 +460,10 @@ abstract class Database {
 		$whereSql = '';
 
 		foreach ($this->where as $nameColumn => $value) {
-<<<<<<< HEAD:framework/Database/Database.php
 			if (strstr($nameColumn, '.', false)) {
 				$data = explode('.', $nameColumn);
 				$whereSql .= ' `' . $data[0] . '`.`' . $data[1] . '` = ' . $value . ' AND';
 			} else {
-=======
-			if (!empty($nameColumn) && !empty($value)) {
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556:framework/Database/PDOConnector.php
 				$whereSql .= ' `' . $nameColumn . '` = :' . $nameColumn . ' AND';
 			}
 		}

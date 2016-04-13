@@ -8,7 +8,6 @@
 
 namespace Framework;
 
-<<<<<<< HEAD
 use Framework\ {
 	Database\Database,
 	DI\Service,
@@ -27,13 +26,12 @@ use Framework\ {
 	Config\Config,
 	Database\DBConnection
 };
-=======
-use Framework\DI\Service;
-use Framework\Request\Request;
-use Framework\Router\Router;
-use Framework\Exception\HttpNotFoundException;
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 
+/**
+ * Class Application
+ *
+ * @package Framework
+ */
 class Application
 {
 
@@ -42,9 +40,10 @@ class Application
 	 * Manipulation configurations Application
 	 *
 	 * @param $config
+	 *
+	 * @throws \Exception
 	 */
 	public function __construct($config) {
-<<<<<<< HEAD
 
 		if (file_exists($config) && is_readable($config)) {
 			$config = include($config);
@@ -97,7 +96,7 @@ class Application
 			->render(Service::get('config')->get('error_500'), [
 				'message' => $message,
 				'code' => $code
-		], true), $code);
+			], true), $code);
 
 	}
 
@@ -107,19 +106,16 @@ class Application
 	 *
 	 * @throws \Exception
 	 */
-=======
-		$this->config = include ($config);
-	}
-
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 	public function run () {
 
-		$this->createServices();
-		$map = Service::get('router')->getMap();
+		try {
+			$this->createServices();
+			$map = Service::get('router')->getMap();
 
-		var_dump($map);
+			if ($map['method'] === 'notFound') {
+				$this->{$map['method']}();
+			}
 
-<<<<<<< HEAD
 			if (is_array($map['security'])) {
 				Service::get('security')->acl($map['security']);
 			}
@@ -180,23 +176,14 @@ class Application
 		));
 		Service::set('router', new Router(Service::get('config')->get('routes')));
 		Service::set('render', new Render(Service::get('config')->get('main_layout')));
-=======
-		if ($map['method'] === 'notFound') {
-			$this->notFound();
-		}
 
 	}
 
-	private function createServices () {
-
-		Service::set('request', new Request());
-		Service::set('router', new Router($this->config['routes']));
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
-
-	}
-
+	/**
+	 * @throws HttpNotFoundException
+	 */
 	private function notFound () {
-		throw new HttpNotFoundException('Page not found');
+		throw new HttpNotFoundException('Page not found', 404);
 	}
 
 	public function __destruct() {

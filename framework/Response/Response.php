@@ -8,7 +8,6 @@
 
 namespace Framework\Response;
 
-<<<<<<< HEAD
 /**
  * Class Response
  * Answer client
@@ -90,10 +89,4 @@ class Response
 
 	}
 
-=======
-
-class Response
-{
-
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 }

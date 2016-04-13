@@ -8,18 +8,12 @@
 
 namespace Framework\Validation\Filter;
 
-<<<<<<< HEAD
 /**
  * Class Length
  *
  * @package Framework\Validation\Filter
  */
-class Length implements FilterInterface
-=======
-
-class Length
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
-{
+class Length implements FilterInterface {
 	private $error = '';
 
 	private $min;
