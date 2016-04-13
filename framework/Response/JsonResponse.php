@@ -8,6 +8,7 @@
 
 namespace Framework\Response;
 
+<<<<<<< HEAD
 /**
  * Class JsonResponse
  * Send json answer client
@@ -29,10 +30,9 @@ class JsonResponse extends Response {
 		parent::__construct($content, $code);
 
 	}
+=======
+>>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 
-	public function sendBody() {
-		$json = json_encode($this->content);
-		echo $json;
-	}
+class JsonResponse {
 
 }

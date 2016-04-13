@@ -18,11 +18,14 @@ namespace Framework\Session;
  */
 class Session {
 
+<<<<<<< HEAD
 	/**
 	 * @var string
 	 */
 	public $returnUrl = '';
 
+=======
+>>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 	/**
 	 * Session constructor.
 	 * Create session and change referer
@@ -33,10 +36,6 @@ class Session {
 			session_start();
 		}
 
-		if (isset($_SERVER['HTTP_REFERER'])) {
-			$this->returnUrl = $_SERVER['HTTP_REFERER'];
-		}
-
 	}
 
 	/**
@@ -44,7 +43,6 @@ class Session {
 	 */
 	public function destroy () {
 
-		session_unset();
 		session_destroy();
 
 	}
@@ -63,6 +61,7 @@ class Session {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Delete session data by name key
 	 *
 	 * @param $name
@@ -78,6 +77,8 @@ class Session {
 	/**
 	 * Return all session data
 	 *
+=======
+>>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 	 * @return mixed
 	 */
 	public function all () {
@@ -97,19 +98,16 @@ class Session {
 		$type = gettype($value);
 
 		switch($type) {
-			case 'boolean':
-			case 'resource':
 			case 'string':
-			case 'object':
-			case 'array':
 				$_SESSION[$name] = $value;
 				break;
 
-			case 'object' && is_callable($value):
+			case 'object':
 				$_SESSION[$name] = $value();
 				break;
 		}
 
+<<<<<<< HEAD
 	}
 
 	/**
@@ -118,35 +116,32 @@ class Session {
 	 * @return array|bool
 	 */
 	public function getFlushMessages () {
+=======
+>>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 
-		return ($this->get('flush') === false) ? [] : $this->get('flush');
 
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Add new flush message
 	 *
 	 * @param $message
 	 * @param $type
+=======
+	 * @param $name
+	 * @param $arguments
+	 *
+	 * @throws \BadMethodCallException
+>>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 	 */
-	public function addFlushMessage ($message, $type) {
+	public static function __callStatic($name, $arguments) {
 
-		$flush = [];
-
-		if (!empty($message)) {
-			if ($type === '') {
-
-				$flush['info'][] = $message;
-
-			} else {
-
-				$flush[$type][] = $message;
-
-			}
+		if (method_exists(self::class, $name)) {
+			self::$name();
 		}
 
-		$this->set('flush', $flush);
-
+		throw new \BadMethodCallException('Method ' . $name . ' does not exists');
 	}
 
 }

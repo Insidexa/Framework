@@ -13,7 +13,7 @@ namespace Framework\Request;
  * Class Request
  * Manipulation of url, form data
  *
- * @author Jashka
+ * @autor Jashka
  *
  * @package Framework\Request
  */
@@ -33,6 +33,11 @@ class Request implements RequestInterface {
 	 * @var array
 	 */
 	private $files = [];
+
+	/**
+	 * @var array
+	 */
+	private $cookies = [];
 
 	/**
 	 * @var int|null
@@ -69,12 +74,19 @@ class Request implements RequestInterface {
 		$this->code = http_response_code();
 		$this->clientIp = $_SERVER['SERVER_ADDR'];
 		$this->method = $_SERVER['REQUEST_METHOD'];
+<<<<<<< HEAD
 		$this->headers = $this->parseHeaders(headers_list());
 	}
 
 	// TODO: add class for upload file and implement psr7 UploadedFileInterface
 	public function getFile ($name) {
 		return $this->files[$name];
+=======
+		$this->timeRequest = $_SERVER['REQUEST_TIME'];
+		$this->scheme = ($_SERVER['HTTPS'] === null) ? 'http' : $_SERVER['HTTPS'];
+		$this->host = $_SERVER['HTTP_HOST'];
+		$this->uri = $_SERVER['REQUEST_URI'];
+>>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 	}
 
 	/**
@@ -168,7 +180,7 @@ class Request implements RequestInterface {
 	public function post($nameKey) {
 		return array_key_exists($nameKey, $this->post)
 			? $this->filterRequest($this->post[ $nameKey ])
-			: null;
+			: 'NULL';
 	}
 
 	/**
@@ -207,11 +219,14 @@ class Request implements RequestInterface {
 		return $this->method === 'PUT';
 	}
 
+<<<<<<< HEAD
 	/**
 	 * Return true if ajax request from client
 	 *
 	 * @return bool
 	 */
+=======
+>>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 	public function isAjax () {
 		$flag = false;
 		if (strtolower(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
@@ -242,9 +257,6 @@ class Request implements RequestInterface {
 		return new RequestUri();
 	}
 
-	/**
-	 * @return bool|null|string
-	 */
 	public function getScheme () {
 		return $this->scheme;
 	}

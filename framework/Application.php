@@ -8,6 +8,7 @@
 
 namespace Framework;
 
+<<<<<<< HEAD
 use Framework\ {
 	Database\Database,
 	DI\Service,
@@ -26,12 +27,13 @@ use Framework\ {
 	Config\Config,
 	Database\DBConnection
 };
+=======
+use Framework\DI\Service;
+use Framework\Request\Request;
+use Framework\Router\Router;
+use Framework\Exception\HttpNotFoundException;
+>>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 
-/**
- * Class Application
- *
- * @package Framework
- */
 class Application
 {
 
@@ -40,10 +42,9 @@ class Application
 	 * Manipulation configurations Application
 	 *
 	 * @param $config
-	 *
-	 * @throws \Exception
 	 */
 	public function __construct($config) {
+<<<<<<< HEAD
 
 		if (file_exists($config) && is_readable($config)) {
 			$config = include($config);
@@ -106,16 +107,19 @@ class Application
 	 *
 	 * @throws \Exception
 	 */
+=======
+		$this->config = include ($config);
+	}
+
+>>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 	public function run () {
 
-		try {
-			$this->createServices();
-			$map = Service::get('router')->getMap();
+		$this->createServices();
+		$map = Service::get('router')->getMap();
 
-			if ($map['method'] === 'notFound') {
-				$this->{$map['method']}();
-			}
+		var_dump($map);
 
+<<<<<<< HEAD
 			if (is_array($map['security'])) {
 				Service::get('security')->acl($map['security']);
 			}
@@ -176,14 +180,23 @@ class Application
 		));
 		Service::set('router', new Router(Service::get('config')->get('routes')));
 		Service::set('render', new Render(Service::get('config')->get('main_layout')));
+=======
+		if ($map['method'] === 'notFound') {
+			$this->notFound();
+		}
 
 	}
 
-	/**
-	 * @throws HttpNotFoundException
-	 */
+	private function createServices () {
+
+		Service::set('request', new Request());
+		Service::set('router', new Router($this->config['routes']));
+>>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
+
+	}
+
 	private function notFound () {
-		throw new HttpNotFoundException('Page not found', 404);
+		throw new HttpNotFoundException('Page not found');
 	}
 
 	public function __destruct() {
