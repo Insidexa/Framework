@@ -11,12 +11,13 @@ namespace Framework\Request;
 
 /**
  * Class Request
+ * Manipulation of url, form data
  *
- * @autor Jashka
+ * @author Jashka
  *
  * @package Framework\Request
  */
-class Request {
+class Request implements RequestInterface {
 
 	/**
 	 * @var array
@@ -34,11 +35,6 @@ class Request {
 	private $files = [];
 
 	/**
-	 * @var array
-	 */
-	private $cookies = [];
-
-	/**
 	 * @var int|null
 	 */
 	private $code = null;
@@ -51,11 +47,6 @@ class Request {
 	/**
 	 * @var null
 	 */
-	private $timeRequest = null;
-
-	/**
-	 * @var null
-	 */
 	private $clientIp = null;
 
 	/**
@@ -64,14 +55,9 @@ class Request {
 	private $scheme = null;
 
 	/**
-	 * @var null
+	 * @var array
 	 */
-	private $host = null;
-
-	/**
-	 * @var null
-	 */
-	private $uri = null;
+	private $headers = [];
 
 	/**
 	 * Request constructor.
@@ -83,13 +69,17 @@ class Request {
 		$this->code = http_response_code();
 		$this->clientIp = $_SERVER['SERVER_ADDR'];
 		$this->method = $_SERVER['REQUEST_METHOD'];
-		$this->timeRequest = $_SERVER['REQUEST_TIME'];
-		$this->scheme = ($_SERVER['HTTPS'] === null) ? 'http' : $_SERVER['HTTPS'];
-		$this->host = $_SERVER['HTTP_HOST'];
-		$this->uri = $_SERVER['REQUEST_URI'];
+		$this->headers = $this->parseHeaders(headers_list());
+	}
+
+	// TODO: add class for upload file and implement psr7 UploadedFileInterface
+	public function getFile ($name) {
+		return $this->files[$name];
 	}
 
 	/**
+	 * Return GET input data for name key
+	 *
 	 * @param $nameKey
 	 *
 	 * @return string
@@ -97,10 +87,80 @@ class Request {
 	public function get($nameKey) {
 		return array_key_exists($nameKey, $this->get)
 			? $this->filterRequest($this->get[ $nameKey ])
-			: 'NULL';
+			: null;
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getClientAddr () {
+		return $this->clientIp;
+	}
+
+	/**
+	 * Return current url with scheme
+	 *
+	 * @return string
+	 */
+	public function getUrl () {
+		return $this->scheme . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return null
+	 */
+	public function getHeader($name) {
+		return array_key_exists($name, $this->headers) ? $this->headers[$name] : null;
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
+	public function hasHeader($name) {
+		return array_key_exists($name, $this->headers);
+	}
+
+	/**
+	 * @param $headers
+	 *
+	 * @return array
+	 */
+	protected function parseHeaders ($headers) {
+
+		$parsedHeaders = [];
+
+		foreach ($headers as $header) {
+
+			$data = explode(':', $header);
+			$parsedHeaders[$data[0]] = $data[1];
+
+		}
+
+		return $parsedHeaders;
+
+	}
+
+	/**
+	 * @return array|false
+	 */
+	public function getHeaders() {
+		return $this->headers;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getProtocolVersion() {
+		return $_SERVER['SERVER_PROTOCOL'];
+	}
+
+	/**
+	 * Return POST input data for name key
+	 *
 	 * @param $nameKey
 	 *
 	 * @return string
@@ -108,10 +168,12 @@ class Request {
 	public function post($nameKey) {
 		return array_key_exists($nameKey, $this->post)
 			? $this->filterRequest($this->post[ $nameKey ])
-			: 'NULL';
+			: null;
 	}
 
 	/**
+	 * Return code from header
+	 *
 	 * @return int|null
 	 */
 	public function getCode() {
@@ -119,6 +181,8 @@ class Request {
 	}
 
 	/**
+	 * Return true if POST request
+	 *
 	 * @return bool
 	 */
 	public function isPost() {
@@ -126,6 +190,8 @@ class Request {
 	}
 
 	/**
+	 * Return true if GET request
+	 *
 	 * @return bool
 	 */
 	public function isGet() {
@@ -133,12 +199,19 @@ class Request {
 	}
 
 	/**
+	 * Return true if PUT request
+	 *
 	 * @return bool
 	 */
 	public function isPut() {
 		return $this->method === 'PUT';
 	}
 
+	/**
+	 * Return true if ajax request from client
+	 *
+	 * @return bool
+	 */
 	public function isAjax () {
 		$flag = false;
 		if (strtolower(filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
@@ -148,36 +221,42 @@ class Request {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getUrl () {
-		return $this->scheme . '://' . $this->host . $this->uri;
-	}
-
-	/**
+	 * Return type method
+	 *
 	 * @return null
 	 */
 	public function getMethod () {
 		return $this->method;
 	}
 
+	public function getStringUri () {
+
+		return (new RequestUri())->getQuery();
+
+	}
+
 	/**
 	 * @return null
 	 */
 	public function getUri () {
-		return $this->uri;
+		return new RequestUri();
 	}
 
+	/**
+	 * @return bool|null|string
+	 */
 	public function getScheme () {
 		return $this->scheme;
 	}
 
 	/**
+	 * Return cleared input data without
+	 *
 	 * @param $data
 	 *
 	 * @return mixed
 	 */
-	private function filterRequest ($data) {
+	protected function filterRequest ($data) {
 		return filter_var($data, FILTER_SANITIZE_STRING);
 	}
 

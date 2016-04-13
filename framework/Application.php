@@ -8,50 +8,186 @@
 
 namespace Framework;
 
-use Framework\DI\Service;
-use Framework\Request\Request;
-use Framework\Router\Router;
-use Framework\Exception\HttpNotFoundException;
+use Framework\ {
+	Database\Database,
+	DI\Service,
+	Renderer\Render,
+	Request\Request,
+	Response\JsonResponse,
+	Response\Response,
+	Response\ResponseRedirect,
+	Router\Dispatcher,
+	Router\Router,
+	Exception\HttpNotFoundException,
+	Security\Security,
+	Session\Session,
+	Logger\Logger,
+	Exception\BadResponseTypeException,
+	Config\Config,
+	Database\DBConnection
+};
 
+/**
+ * Class Application
+ *
+ * @package Framework
+ */
 class Application
 {
 
 	/**
-	 * @var array
-	 */
-	private $config = [];
-
-	/**
 	 * Application constructor.
+	 * Manipulation configurations Application
 	 *
 	 * @param $config
+	 *
+	 * @throws \Exception
 	 */
 	public function __construct($config) {
-		$this->config = include ($config);
-	}
 
-	public function run () {
+		if (file_exists($config) && is_readable($config)) {
+			$config = include($config);
 
-		$this->createServices();
-		$map = Service::get('router')->getMap();
+			Service::set('config', new Config($config));
 
-		var_dump($map);
+			$this->showErrors();
 
-		if ($map['method'] === 'notFound') {
-			$this->notFound();
+		} else {
+			$this->appError('Config not readable');
 		}
 
 	}
 
-	private function createServices () {
+	/**
+	 * Show or hide error depending from config mode
+	 */
+	private function showErrors () {
 
-		Service::set('request', new Request());
-		Service::set('router', new Router($this->config['routes']));
+		switch(Service::get('config')->get('mode')) {
+			case 'dev':
+				ini_set('display_errors', 1);
+				ini_set('display_startup_errors', 1);
+				error_reporting(E_ALL);
+				break;
+
+			case 'production':
+				ini_set('display_errors', 0);
+				ini_set('display_startup_errors', 0);
+				error_reporting(0);
+				break;
+		}
 
 	}
 
+	/**
+	 * Return response error
+	 *
+	 * @param     $message
+	 * @param int $code
+	 * @param string $trace
+	 *
+	 * @return Response
+	 */
+	private function appError ($message, $code = 500, $trace = '') {
+
+		Logger::getInstance()->error($message . "\r\n" . $trace);
+
+		return new Response(Service::get('render')
+			->render(Service::get('config')->get('error_500'), [
+				'message' => $message,
+				'code' => $code
+		], true), $code);
+
+	}
+
+	/**
+	 * Manages the application lifecycle.
+	 * It creates services, and manages the security checks the token returns a response
+	 *
+	 * @throws \Exception
+	 */
+	public function run () {
+
+		try {
+			$this->createServices();
+			$map = Service::get('router')->getMap();
+
+			if ($map['method'] === 'notFound') {
+				$this->{$map['method']}();
+			}
+
+			if (is_array($map['security'])) {
+				Service::get('security')->acl($map['security']);
+			}
+
+			Service::get('security')->checkToken();
+
+			$response = Dispatcher::create($map['controller'], $map['method'], $map['params']);
+
+			$this->returnResponse($response);
+
+		} catch (HttpNotFoundException $e) {
+
+			$this->appError($e->getMessage(), 404);
+
+		} catch (\Exception $e) {
+
+			$this->appError($e->getMessage(), $e->getCode(), $e->getTraceAsString());
+
+		}
+
+	}
+
+	/**
+	 * Return response if valid
+	 *
+	 * @param $response
+	 *
+	 * @throws BadResponseTypeException
+	 *
+	 * @return Response
+	 */
+	private function returnResponse ($response) {
+
+		if ($response instanceof Response) {
+			return $response;
+		}
+
+		throw new BadResponseTypeException('Bad response');
+
+	}
+
+	/**
+	 * Create services
+	 *
+	 * @throws Exception\DatabaseException
+	 */
+	private function createServices () {
+
+		Service::set('request', new Request());
+		Service::set('db', DBConnection::getInstance(
+			Service::get('config')->get('pdo')
+		));
+		Database::setConnection(Service::get('db'));
+		Service::set('session', new Session());
+		Service::set('security', new Security(
+			Service::get('config')->get('security.login_route'),
+			Service::get('config')->get('security.user_class')
+		));
+		Service::set('router', new Router(Service::get('config')->get('routes')));
+		Service::set('render', new Render(Service::get('config')->get('main_layout')));
+
+	}
+
+	/**
+	 * @throws HttpNotFoundException
+	 */
 	private function notFound () {
-		throw new HttpNotFoundException('Page not found');
+		throw new HttpNotFoundException('Page not found', 404);
+	}
+
+	public function __destruct() {
+		\Framework\Database\Database::closeConnection();
 	}
 
 }

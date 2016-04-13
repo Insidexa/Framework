@@ -9,4 +9,4 @@
 namespace Framework\Exception;
 
 
-class ServiceNotFoundException extends \Exception {}
+class ServiceNotFoundException extends \Framework\Exception\BaseException {}

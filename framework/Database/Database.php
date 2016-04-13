@@ -12,26 +12,18 @@ use Framework\Exception\DatabaseException;
 
 /**
  * Class PDOConnector
+ * Constructor queries
  *
  * @package Framework\Database
- */
-
-/**
- * Class PDOConnector
  *
- * @package Framework\Database
+ * @author Jashka
  */
-class PDOConnector {
+abstract class Database {
 
 	/**
-	 * @var null
+	 * @var \PDO
 	 */
 	private static $instance;
-
-	/**
-	 * @var array
-	 */
-	private static $config = [];
 
 	/**
 	 * @var null
@@ -89,9 +81,9 @@ class PDOConnector {
 	private $model = '';
 
 	/**
-	 * @var string
+	 * @var array
 	 */
-	protected $_table = '';
+	protected $_tables = [];
 
 	/**
 	 * @var string
@@ -99,55 +91,66 @@ class PDOConnector {
 	protected $type = '';
 
 	/**
-	 * @param array $config
+	 * Set db connection
 	 *
-	 * @return null
+	 * @param \PDO $connection
+	 *
 	 * @throws DatabaseException
 	 */
-	public static function getInstance(array $config = []) {
-		if (static::$instance === null) {
-			self::$config = $config;
-			try {
-				static::$instance = new \PDO(
-					self::$config['dns'],
-					self::$config['user'],
-					self::$config['password']
-				);
+	public static function setConnection(\PDO $connection) {
 
-				static::$instance->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-			} catch (\PDOException $e) {
-				throw new DatabaseException($e->getMessage());
-			}
-
-		}
-
-		return static::$instance;
+		self::$instance = $connection;
 
 	}
 
 	/**
-	 * @param $column
+	 * @param string|array $tables
 	 *
 	 * @return $this
+	 * @throws DatabaseException
 	 */
-	protected function addColumn($column) {
+	protected function addTable ($tables) {
 
-		switch ($column) {
-			case is_string($column):
-				$this->columns = $column;
+		$type = gettype($tables);
+
+		switch ($type) {
+			case 'array':
+				$this->_tables = array_merge($this->_tables, $tables);
 				break;
 
-			case is_array($column):
-				$this->columns = $column;
+			case 'string':
+				$this->_tables[] = $tables;
+				break;
+
+			default:
+				throw new DatabaseException('Cannot add tables');
 				break;
 		}
+
+		$this->_tables = array_unique($this->_tables);
 
 		return $this;
 
 	}
 
 	/**
+	 * Add column on array
+	 *
+	 * @param $column
+	 *
+	 * @return $this
+	 */
+	protected function addColumn($column) {
+
+		$this->columns = $column;
+
+		return $this;
+
+	}
+
+	/**
+	 * Add conditions to array
+	 *
 	 * @param array $params
 	 *
 	 * @return $this
@@ -161,6 +164,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Set type query to select
+	 *
 	 * @return $this
 	 */
 	protected function selectDB() {
@@ -171,6 +176,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Set type query to update
+	 *
 	 * @return $this
 	 */
 	protected function updateDB() {
@@ -181,6 +188,7 @@ class PDOConnector {
 	}
 
 	/**
+	 * Set type query to insert record
 	 *
 	 * @return $this
 	 */
@@ -190,6 +198,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Set type query to delete record
+	 *
 	 * @return $this
 	 */
 	protected function deleteDB() {
@@ -199,6 +209,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Add order conditions to array
+	 *
 	 * @param array $param
 	 *
 	 * @return $this
@@ -211,12 +223,14 @@ class PDOConnector {
 	}
 
 	/**
+	 * Change the limit of delivery of results
+	 *
 	 * @param $from
 	 * @param $to
 	 *
 	 * @return $this
 	 */
-	protected function limit($from, $to = null) {
+	public function limit($from, $to = null) {
 		$this->limit = [
 			'from' => $from,
 			'to'   => $to,
@@ -226,6 +240,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Collects a complete request by type
+	 *
 	 * @return null
 	 * @throws DatabaseException
 	 */
@@ -235,55 +251,43 @@ class PDOConnector {
 			case 'SELECT':
 
 				$this->currentSql .= $this->getStringColumns();
+				$this->currentSql .= ' FROM ' . $this->getStringTables();
 
-				$this->currentSql .= ' FROM ' . $this->_table;
-
-				if (!empty($this->where)) {
+				if (count($this->where) !== 0) {
 					$this->currentSql .= $this->getStringWhere();
 				}
 
-				if (!empty($this->orderBy)) {
-
+				if (count($this->orderBy) !== 0) {
 					$this->currentSql .= $this->getStringOrderBy();
 				}
 
-				if (!empty($this->limit)) {
+				if (count($this->limit) !== 0) {
 					$this->currentSql .= $this->getStringLimit();
 				}
-
-				$this->queryEnd();
 
 				break;
 
 			case 'UPDATE':
 
-				$this->currentSql .= ' ' . $this->_table;
+				$this->currentSql .= ' ' . $this->getStringTables();
 				$this->currentSql .= ' SET';
-
 				$this->currentSql .= $this->getStringUpdate();
-
 				$this->currentSql .= $this->getStringWhere();
-
-				$this->queryEnd();
 
 				break;
 
 			case 'INSERT':
 
 				$this->currentSql .= ' INTO ';
-				$this->currentSql .= $this->_table;
-
+				$this->currentSql .= $this->getStringTables();
 				$this->currentSql .= $this->insert;
-
-				$this->queryEnd();
 
 				break;
 
 			case 'DELETE':
 
-				$this->currentSql .= ' FROM ' . $this->_table;
+				$this->currentSql .= ' FROM ' . $this->getStringTables();
 				$this->currentSql .= ' ' . $this->getStringWhere();
-				$this->queryEnd();
 
 				break;
 
@@ -292,15 +296,22 @@ class PDOConnector {
 				break;
 		}
 
+		$this->queryEnd();
+
 		return $this->execute();
 
 	}
 
+	/**
+	 * Ends string query
+	 */
 	private function queryEnd() {
 		$this->currentSql .= ';';
 	}
 
 	/**
+	 * Parse insert arguments to string query
+	 *
 	 * @param array $params
 	 */
 	protected function insertValues(array $params = []) {
@@ -325,6 +336,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Parse limit data to string
+	 *
 	 * @return string
 	 */
 	private function getStringLimit() {
@@ -339,11 +352,43 @@ class PDOConnector {
 	}
 
 	/**
+	 * @return string
+	 * @throws DatabaseException
+	 */
+	protected function getStringTables () {
+
+		$tablesSql = '';
+
+		if (count($this->_tables) === 1) {
+			$tablesSql = $this->_tables[0] ;
+		}
+
+		if (count($this->_tables) > 1) {
+
+			foreach($this->_tables as $table) {
+
+				$tablesSql .= '`' . $table . '`, ';
+
+			}
+
+			$tablesSql = substr($tablesSql, 0, -2);
+
+		}
+
+		if (empty($tablesSql)) throw new DatabaseException('Specify the table/s');
+
+		return $tablesSql;
+
+	}
+
+	/**
+	 * Set update data
+	 *
 	 * @param array $params
 	 */
 	protected function setUpdateValues(array $params = []) {
 
-		if (!empty($params)) {
+		if (count($params) !== 0) {
 			$this->update = $params;
 			$this->bindings = array_merge($params, $this->bindings);
 		}
@@ -351,6 +396,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Parse update data to string query
+	 *
 	 * @return string
 	 */
 	private function getStringUpdate() {
@@ -370,29 +417,41 @@ class PDOConnector {
 	}
 
 	/**
+	 * Parse columns to string query
+	 *
 	 * @return mixed
 	 */
 	private function getStringColumns() {
 
 		$columnsSql = '';
 
-		if (!empty($this->columns)) {
+		switch ($this->columns) {
+			case is_string($this->columns):
+				$columnsSql = ' ' . $this->columns;
+				break;
 
-			switch ($this->columns) {
-				case is_string($this->columns):
-					$columnsSql .= ' ' . '*';
-					break;
+			case is_array($this->columns):
+				foreach($this->columns as $column) {
 
-				case is_array($this->columns):
-					$columnsSql .= ' `' . implode('`, `', $this->columns) . '`';
-					break;
-			}
+					if (strstr($column, '.', false)) {
+						$data = explode('.', $column);
+						$columnsSql .= "`$data[0]`.`$data[1]`, ";
+					} else {
+						$columnsSql .= '`' . $column . '`, ';
+					}
+
+				}
+
+				$columnsSql = substr($columnsSql, 0, -2);
+				break;
 		}
 
 		return $columnsSql;
 	}
 
 	/**
+	 * Parse where conditions to string query
+	 *
 	 * @return string
 	 */
 	private function getStringWhere() {
@@ -401,7 +460,10 @@ class PDOConnector {
 		$whereSql = '';
 
 		foreach ($this->where as $nameColumn => $value) {
-			if (!empty($nameColumn) && !empty($value)) {
+			if (strstr($nameColumn, '.', false)) {
+				$data = explode('.', $nameColumn);
+				$whereSql .= ' `' . $data[0] . '`.`' . $data[1] . '` = ' . $value . ' AND';
+			} else {
 				$whereSql .= ' `' . $nameColumn . '` = :' . $nameColumn . ' AND';
 			}
 		}
@@ -412,6 +474,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Parse order conditions to string query
+	 *
 	 * @return string
 	 */
 	private function getStringOrderBy() {
@@ -430,7 +494,10 @@ class PDOConnector {
 	}
 
 	/**
-	 * @return null
+	 * Run query
+	 * clear data after query
+	 *
+	 * @return object|integer
 	 * @throws DatabaseException
 	 */
 	protected function execute() {
@@ -445,13 +512,16 @@ class PDOConnector {
 
 			$result = $this->statement->execute($this->bindings);
 
+			$this->clear();
+
 			if ($this->type === 'update'
 				|| $this->type === 'insert'
 				|| $this->type === 'delete') {
+
+				$this->type = '';
+
 				return $result;
 			}
-
-			$this->clear();
 
 			return $this->statement;
 		} catch (\PDOException $e) {
@@ -459,6 +529,18 @@ class PDOConnector {
 		}
 	}
 
+	/**
+	 * @return int
+	 */
+	public function getLastId () {
+
+		return self::$instance->lastInsertId();
+
+	}
+
+	/**
+	 * Cleared data for query
+	 */
 	private function clear() {
 
 		$this->where = [];
@@ -472,6 +554,8 @@ class PDOConnector {
 	}
 
 	/**
+	 * Return string last query
+	 *
 	 * @return null
 	 */
 	public static function getLastQuery() {
@@ -479,13 +563,18 @@ class PDOConnector {
 	}
 
 	/**
+	 * Set model
+	 *
 	 * @param $model
 	 */
 	protected function setModel($model) {
 		$this->model = $model;
 	}
 
-	protected function closeConnection() {
+	/**
+	 * Close connection
+	 */
+	public static function closeConnection() {
 		self::$instance = null;
 	}
 

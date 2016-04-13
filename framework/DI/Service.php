@@ -10,18 +10,37 @@ namespace Framework\DI;
 
 use Framework\Exception\ServiceNotFoundException;
 
+/**
+ * Class Service
+ * Service Locator for objects
+ *
+ * @package Framework\DI
+ */
 class Service {
 
 	/**
 	 * @var array
 	 */
-	private static $services = [];
+	public static $services = [];
 
+	/**
+	 * Service constructor.
+	 */
+	private function __construct() {
+	}
+
+	/**
+	 *
+	 */
+	private function __clone() {
+		// TODO: Implement __clone() method.
+	}
 
 	/**
 	 * @param $service
 	 *
 	 * @return mixed
+	 * @throws ServiceNotFoundException
 	 */
 	public static function get($service) {
 		return self::issetService($service);
@@ -32,7 +51,10 @@ class Service {
 	 * @param $service
 	 */
 	public static function set($nameService, $service) {
-		self::$services[ $nameService ] = $service;
+
+		if (is_object($service) || is_callable($service)) {
+			self::$services[ $nameService ] = $service;
+		}
 	}
 
 	/**
@@ -41,10 +63,13 @@ class Service {
 	 * @return mixed
 	 * @throws ServiceNotFoundException
 	 */
-	private function issetService($service) {
-		return array_key_exists($service, self::$services)
-			? self::$services[ $service ]
-			: self::$services[ $service ] = $this->createService($service);
+	private static function issetService($service) {
+
+		if (array_key_exists($service, self::$services)) {
+			return self::$services[ $service ];
+		}
+
+		throw new ServiceNotFoundException('Service ' . $service . ' not found');
 	}
 
 	/**
@@ -53,29 +78,15 @@ class Service {
 	 * @return mixed
 	 */
 	public function __get($service) {
-		return $this->issetService($service);
+		return self::issetService($service);
 	}
 
 	/**
-	 * @param $name
-	 * @param $value
+	 * @param string $name
+	 * @param object $value
 	 */
 	public function __set($name, $value) {
-		self::$services[ $name ] = $value;
+		self::set($name, $value);
 	}
-
-	/**
-	 * @param $className
-	 *
-	 * @return mixed
-	 * @throws ServiceNotFoundException
-	 */
-	private function createService($className) {
-		if (class_exists($className))
-			return new $className;
-
-		throw new ServiceNotFoundException('Service ' . $className . ' not created');
-	}
-
 
 }
