@@ -9,6 +9,7 @@
 namespace Blog\Controller;
 
 use Blog\Model\Post;
+use Blog\Model\UserPosts;
 use Framework\Controller\Controller;
 use Framework\DI\Service;
 use Framework\Exception\DatabaseException;
@@ -22,7 +23,12 @@ class PostController extends Controller
 
     public function indexAction()
     {
-        return $this->render('index.html', array('posts' => Post::find('all')));
+        $id = null;
+        if (Service::get('security')->isAuthenticated())
+            $id = Service::get('security')->getUser()->id;
+
+        return $this->render('index.html', array('posts' => Post::find('all')->with(UserPosts::class)->get(),
+            'currentId' => $id));
     }
 
     public function getPostAction($id)
@@ -42,7 +48,13 @@ class PostController extends Controller
 
                 $validator = new Validator($post);
                 if ($validator->isValid()) {
-                    $post->save();
+                    $lastId = $post->save();
+
+                    $userPosts = new UserPosts();
+                    $userPosts->post_id = (int)$lastId;
+                    $userPosts->user_id = (int)Service::get('security')->getUser()->id;
+                    $userPosts->save();
+
                     return $this->redirect($this->generateRoute('home'), 'The data has been saved successfully');
                 } else {
                     $error = $validator->getErrors();
