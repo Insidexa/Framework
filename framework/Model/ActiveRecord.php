@@ -19,7 +19,9 @@ use Framework\Exception\DatabaseException;
  * @package Framework\Model
  *
  * @method bool                    save()
- * @method static object           find( $data )
+ * @method static ActiveRecord     find( $data )
+ * @method ActiveRecord            with( $table )
+ * @method static ActiveRecord     select( $columns )
  * @method static bool             update( array $params = [] )
  * @method static bool             delete()
  * @method static ActiveRecord     where( array $param = [] )

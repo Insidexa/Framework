@@ -18,6 +18,8 @@ class Post extends ActiveRecord
     public $content;
     public $date;
 
+    public static $connectTo = ['post_id'];
+
     public static function getTable()
     {
         return 'posts';
