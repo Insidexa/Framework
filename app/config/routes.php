@@ -73,6 +73,7 @@ return array(
         'pattern'       => '/posts/{id}/edit',
         'controller'    => 'CMS\\Controller\\BlogController',
         'action'        => 'edit',
+        'security'      => ['ROLE_USER'],
         '_requirements' => array(
             'id'      => '\d+'
         )
