@@ -35,7 +35,7 @@ class Loader
 
 	private function __construct() {
 
-		self::addNamespacePath('Framework\\', __DIR__ . '/../framework');
+		self::addNamespacePath('Framework\\', __DIR__ . '/../Framework');
 
 		spl_autoload_register([
 			self::class,

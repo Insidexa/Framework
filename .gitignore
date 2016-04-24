@@ -2,3 +2,6 @@
 /app/config/config.php
 /app/logs/*
 /app/db.sql
+/vendor/
+/composer.phar
+/Framework/Loader.php

@@ -6,9 +6,11 @@
  * Time: 11:36 AM
  */
 
-namespace Blog\Model;
+namespace CMS\Model;
 
 use Framework\Model\ActiveRecord;
+use Blog\Model\User;
+use Blog\Model\Post;
 
 /**
  * Class UserPosts
