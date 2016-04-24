@@ -20,12 +20,10 @@ class Validator
 		$this->check();
 	}
 
-<<<<<<< HEAD
 	/**
 	 * Check all properties
 	 */
-=======
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
+
 	private function check () {
 
 		$rulesModel = $this->model->getRules();
@@ -42,26 +40,20 @@ class Validator
 
 	}
 
-<<<<<<< HEAD
 	/**
 	 * Return errors
 	 *
 	 * @return array
 	 */
-=======
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 	public function getErrors () {
 		return $this->errors;
 	}
 
-<<<<<<< HEAD
 	/**
 	 * Check exists errors and return true if exists
 	 *
 	 * @return bool
 	 */
-=======
->>>>>>> 78ed7758dbc88d096d03ce590072885c94255556
 	public function isValid () {
 		$isErrors = false;
 		if (count($this->errors) === 0) {
