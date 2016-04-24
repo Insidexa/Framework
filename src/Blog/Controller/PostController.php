@@ -9,12 +9,11 @@
 namespace Blog\Controller;
 
 use Blog\Model\Post;
-use Blog\Model\UserPosts;
+use CMS\Model\UserPosts;
 use Framework\Controller\Controller;
 use Framework\DI\Service;
 use Framework\Exception\DatabaseException;
 use Framework\Exception\HttpNotFoundException;
-use Framework\Request\Request;
 use Framework\Response\Response;
 use Framework\Validation\Validator;
 
