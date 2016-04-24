@@ -1,8 +1,20 @@
 {
+  "name": "jashka/framework",
+  "description": "Framework for create web-app",
+  "authors": [
+    {
+      "name": "Andrey Jakovenko",
+      "email": "nostresss77@gmail.com"
+    }
+  ],
+  "type": "library",
+  "license": "MIT",
+  "minimum-stability": "dev",
+  "require": {},
   "autoload": {
     "psr-0": {
-      "Framework": "Framework",
-      "MyPackage": "includes/"
+      "Framework": "Framework/",
+      "": "src/"
     }
   }
 }
