@@ -11,7 +11,7 @@ namespace Framework\Renderer;
 
 use Exception;
 use Framework\DI\Service;
-use Framework\Helpers\Helper;
+use Framework\Helper\Helper;
 
 /**
  * Class Render
