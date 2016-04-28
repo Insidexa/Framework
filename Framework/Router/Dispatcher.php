@@ -8,9 +8,9 @@
  */
 
 namespace Framework\Router;
+
 use Framework\DI\DependencyInjection;
 use Framework\Exception\ClassNotFound;
-use Framework\Response\Response;
 
 /**
  * Class Dispatcher

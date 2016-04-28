@@ -9,7 +9,7 @@
 namespace Framework\Controller;
 
 use Framework\DI\Service;
-use Framework\Helpers\Helper;
+use Framework\Helper\Helper;
 use Framework\Request\Request;
 use Framework\Response\Response;
 use Framework\Response\ResponseRedirect;

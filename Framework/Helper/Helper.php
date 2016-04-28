@@ -7,7 +7,7 @@
  * Time: 21:03
  */
 
-namespace Framework\Helpers;
+namespace Framework\Helper;
 
 use Framework\DI\Service;
 use Framework\Router\Dispatcher;

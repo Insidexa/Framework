@@ -9,7 +9,7 @@
 
 namespace Framework\Config;
 
-use Framework\Helpers\Helper;
+use Framework\Helper\Helper;
 use \Exception;
 
 /**
