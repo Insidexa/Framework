@@ -8,6 +8,7 @@
  */
 
 namespace Framework\Security;
+
 use Framework\DI\Service;
 use Framework\Exception\AuthLoginException;
 use Framework\Response\ResponseRedirect;
